@@ -1,0 +1,22 @@
+<header class="">
+    <nav class="navbar navbar-expand-sm sticky-top navbar-light bg-light">
+        <div class="container-fluid">
+            <ul ngbNav [activeId]="route.fragment | async" #nav="ngbNav" class="navbar-nav" role="navigation">
+                <li [ngbNavItem]="'.'">
+                    <a ngbNavLink routerLink=".">Scan</a>
+                </li>
+                <li [ngbNavItem]="'grocery-list'">
+                    <a ngbNavLink routerLink="grocery-list">Grocery List</a>
+                </li>
+                <li [ngbNavItem]="'pantry'">
+                    <a ngbNavLink routerLink="pantry">Search Pantry</a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+</header>
+
+<div class="container-fluid">
+    <router-outlet></router-outlet>
+</div>

@@ -1,0 +1,13 @@
+<h1>Barcode scanner</h1>
+
+<p>Scan the barcode in the camera image below</p>
+
+<div>
+    <barcode-scanner-livestream type="upc" (valueChanges)="onValueChanges($event)" (started)="(onStarted)" maxHeight="300px">
+    </barcode-scanner-livestream>
+    <div>{{this.barcode}}</div>
+
+    <img [src]="product?.image_url" [hidden]="!product?.image_url" />
+    <div>{{this.product.image_url}}</div>
+    <div>{{this.product.label}}</div>
+</div>
