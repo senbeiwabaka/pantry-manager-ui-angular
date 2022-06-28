@@ -9,12 +9,14 @@ import { BarcodeScannerLivestreamModule } from 'ngx-barcode-scanner';
 import { NgbModalModule, NgbNavModule } from '@ng-bootstrap/ng-bootstrap';
 import { GroceryListComponent } from './grocery-list/grocery-list.component';
 import { HttpClientModule } from '@angular/common/http';
+import { PantryComponent } from './pantry/pantry.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     BarcodeScannerComponent,
-    GroceryListComponent
+    GroceryListComponent,
+    PantryComponent
   ],
   imports: [
     BrowserModule,
