@@ -13,10 +13,10 @@ export class ApiService {
 
   constructor(private readonly http: HttpClient, private readonly logging: LoggingService) { }
 
-  public get<T>(url: string, upc: string): Observable<T> {
-    return this.http.get<T>(`${url}\\${upc}`).pipe(
-      tap(value => this.logging.log(`fetched ${value} upc=${upc}`)),
-      catchError(this.handleError<T>(`get upc=${upc}`))
+  public get<T>(url: string): Observable<T> {
+    return this.http.get<T>(url).pipe(
+      tap(value => this.logging.log(`fetched ${value}`)),
+      catchError(this.handleError<T>(`get url`))
     );
   }
 
