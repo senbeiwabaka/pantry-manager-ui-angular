@@ -46,7 +46,7 @@ export class BarcodeScannerComponent implements AfterViewInit, OnDestroy {
     if (this.product?.upc === '' || this.product?.upc != this.barcode) {
       this.barcodeScanner?.stop();
 
-      this.apiService.get<Product>(`http://localhost:8000/pantry-manager/upc-lookup\\${this.barcode}`)
+      this.apiService.get<Product>(`/pantry-manager/upc-lookup\\${this.barcode}`)
         .subscribe({
           next: result => {
             console.debug('result: ', result);
@@ -56,7 +56,7 @@ export class BarcodeScannerComponent implements AfterViewInit, OnDestroy {
 
               console.debug('Product after: ', this.product);
 
-              this.apiService.post<Product>(`http://localhost:8000/pantry-manager/product`, this.product)
+              this.apiService.post<Product>(`/pantry-manager/product`, this.product)
                 .subscribe({
                   next: postResult => {
                     this.logging.log(`post result: ${postResult}`);

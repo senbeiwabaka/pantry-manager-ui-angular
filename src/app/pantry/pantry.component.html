@@ -1,1 +1,23 @@
 <p>pantry works!</p>
+
+<table datatable [dtOptions]="dtOptions" class="row-border hover table">
+  <thead>
+    <tr>
+      <th>Count</th>
+      <th>Label</th>
+      <th>UPC</th>
+    </tr>
+  </thead>
+  <tbody *ngIf="inventoryItems?.length != 0">
+    <tr *ngFor="let item of inventoryItems">
+      <td>{{ item.count }}</td>
+      <td>{{ item.product.label }}</td>
+      <td>{{ item.product.upc }}</td>
+    </tr>
+  </tbody>
+  <tbody *ngIf="inventoryItems?.length == 0">
+    <tr>
+      <td colspan="3" class="no-data-available">No data!</td>
+    </tr>
+  </tbody>
+</table>

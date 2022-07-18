@@ -1,0 +1,8 @@
+{
+    "/pantry-manager/*": {
+        "target": "http://infrastructure-pi-2.home.arpa:8000",
+        "secure": false,
+        "logLevel": "debug",
+        "changeOrigin": true
+    }
+}

@@ -10,6 +10,7 @@ import { NgbModalModule, NgbNavModule } from '@ng-bootstrap/ng-bootstrap';
 import { GroceryListComponent } from './grocery-list/grocery-list.component';
 import { HttpClientModule } from '@angular/common/http';
 import { PantryComponent } from './pantry/pantry.component';
+import { DataTablesModule } from 'angular-datatables';
 
 @NgModule({
   declarations: [
@@ -25,7 +26,8 @@ import { PantryComponent } from './pantry/pantry.component';
     BarcodeScannerLivestreamModule,
     NgbModalModule,
     NgbNavModule,
-    HttpClientModule
+    HttpClientModule,
+    DataTablesModule
   ],
   providers: [],
   bootstrap: [AppComponent]
