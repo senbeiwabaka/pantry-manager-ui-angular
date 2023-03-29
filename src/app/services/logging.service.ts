@@ -7,7 +7,7 @@ export class LoggingService {
 
   constructor() { }
 
-  public log(arg0: string) {
-    console.debug(arg0);
+  public log(message: string, ...params: any[]) {
+    console.debug(message, params);
   }
 }

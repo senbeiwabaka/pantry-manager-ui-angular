@@ -8,37 +8,67 @@ import { LoggingService } from './logging.service';
 })
 export class ApiService {
   private readonly httpOptions = {
-    headers: new HttpHeaders({ 'Content-Type': 'application/json' })
+    headers: new HttpHeaders({ 'Content-Type': 'application/json', 'accept': 'application/json' })
   };
 
   constructor(private readonly http: HttpClient, private readonly logging: LoggingService) { }
 
   public get<T>(url: string): Observable<T> {
+    this.logging.log('logging::get url: ', url);
+
     return this.http.get<T>(url).pipe(
-      tap(value => this.logging.log(`fetched ${value}`)),
-      catchError(this.handleError<T>(`get url`))
+      tap(value => console.debug('fetched ', value)),
+      catchError(this.handleError<T>(`GET '${url}'`))
     );
   }
 
-  public post<T>(url: string, item: T): Observable<T> {
-    console.debug('item: ', item);
+  public post<T, V>(url: string, item: V): Observable<T> {
+    this.logging.log('logging::post url: ', url);
+    this.logging.log('logging::post item: ', item);
+
     return this.http.post<T>(url, item, this.httpOptions).pipe(
-      tap((value: T) => { console.debug('value: ', value); this.logging.log(`added ${value}`); }),
-      catchError(this.handleError<T>('added item'))
+      tap((value: T) => console.debug('added ', value)),
+      catchError(this.handleError<T>(`POST '${url}'`))
+    );
+  }
+
+  public patchPost(url: string): Observable<void> {
+    this.logging.log('logging::post url: ', url);
+
+    return this.http.post(url, {}, this.httpOptions).pipe(
+      catchError(this.patchPostErrorhandle(`POST '${url}'`))
+    );
+  }
+
+  public put<T, V>(url: string, item: V): Observable<T> {
+    this.logging.log('logging::put url: ', url);
+    this.logging.log('logging::put item: ', item);
+
+    return this.http.put<T>(url, item, this.httpOptions).pipe(
+      tap((value: T) => console.debug('updated ', value)),
+      catchError(this.handleError<T>(`PUT '${url}'`))
     );
   }
 
   handleError<T>(operation = 'operation', result?: T): any {
     return (error: any): Observable<T> => {
 
-      // TODO: send the error to remote logging infrastructure
-      // console.error(error); // log to console instead
-
       // TODO: better job of transforming error for user consumption
-      this.logging.log(`${operation} failed: ${error.message}`);
+      this.logging.log(`logging::${operation} failed: ${error.message}`);
 
       // Let the app keep running by returning an empty result.
-      return of(result as T);
+      const failedResult = of(result as T);
+
+      this.logging.log('logging::failedResult: ', failedResult);
+      this.logging.log('logging::result: ', result);
+
+      return failedResult;
+    };
+  }
+
+  patchPostErrorhandle(operation = 'operation'): any {
+    return (error: any): any => {
+      this.logging.log(`logging::${operation} failed: ${error.message}`);
     };
   }
 }

@@ -6,11 +6,14 @@
     <barcode-scanner-livestream type="upc" (valueChanges)="onValueChanges($event)" maxHeight="300px">
     </barcode-scanner-livestream>
 
-    <img [src]="product?.image_url" [hidden]="!product?.image_url" />
-    <div>{{this.message}}</div>
+    <div>
+        <img [src]="product?.image_url" [hidden]="!product?.image_url" />
+        <div>{{this.message}}</div>
+    </div>
 </div>
 
 <div id="toggleDiv" class="custom-control custom-switch">
-    <input type="checkbox" class="custom-control-input" id="checkinToggle" [checked]="isAdding" (change)="isAdding = !isAdding">
+    <input type="checkbox" class="custom-control-input" id="checkinToggle" [checked]="isAdding"
+        (change)="isAdding = !isAdding">
     <label class="custom-control-label" for="checkinToggle">Adding to Pantry</label>
 </div>
