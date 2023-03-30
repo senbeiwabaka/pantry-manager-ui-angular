@@ -1,9 +1,8 @@
-import { AfterViewInit, Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { AfterViewInit, Component, OnDestroy, ViewChild } from '@angular/core';
 import { QuaggaJSResultObject } from '@ericblade/quagga2';
 import { BarcodeScannerLivestreamComponent } from 'ngx-barcode-scanner';
 import { Product } from '../shared/models/product';
-import { concatMap, flatMap, iif, map, mergeMap, Observable, of, Subject, Subscriber, takeUntil, tap } from 'rxjs';
+import { concatMap, iif, mergeMap, Subject, tap } from 'rxjs';
 import { ApiService } from '../services/api.service';
 import { LoggingService } from '../services/logging.service';
 import { InventoryItem } from '../shared/models/inventory-item';
@@ -76,8 +75,6 @@ export class BarcodeScannerComponent implements AfterViewInit, OnDestroy {
 
     this.apiService.get<Product>(`/pantry-manager/product/${this.barcode}`)
       .pipe(
-        // map(productResult => { console.debug('result: ', productResult); return productResult !== undefined; }),
-
         concatMap(returnedProduct =>
           iif(
             () => returnedProduct != null, // condition
@@ -97,25 +94,6 @@ export class BarcodeScannerComponent implements AfterViewInit, OnDestroy {
                 mergeMap(productResult => this.apiService.post<Product, Product>(`/pantry-manager/product`, productResult))
               )) // falseResult
         ),
-
-
-        // mergeMap(exists => {
-        //   if (exists) {
-        //     return of(exists);
-        //   } else {
-        //     return this.apiService.get<Product>(`/pantry-manager/upc-lookup/${this.barcode}`)
-        //       .pipe(
-        //         mergeMap(productResult => this.apiService.post<Product, Product>(`/pantry-manager/product`, productResult))
-        //       );
-        //   }
-        // }),
-
-        // map(productResult => { this.product = productResult; return of(productResult) }),
-
-        // mergeMap(() =>
-        //   this.apiService.get<Product>(`/pantry-manager/inventory/${this.barcode}`)
-        //     .pipe(map(inventoryItem => inventoryItem !== undefined))
-        // )
       )
       .subscribe({
         next: (successfulItem) => {
@@ -131,17 +109,6 @@ export class BarcodeScannerComponent implements AfterViewInit, OnDestroy {
           console.log('subscribe complete? ', this.product);
 
           if (this.product) {
-            // this.apiService.get<InventoryItem>(`pantry-manager/inventory/${this.product.upc}`)
-            //   .pipe(
-            //     tap((value) => this.logging.log('inventory item ', value)),
-            //     concatMap(returnedInventoryItem =>
-            //       iif(
-            //         () => returnedInventoryItem != null, // condition
-            //         this.apiService.put<InventoryItem, InventoryItem>(`/pantry-manager/inventory`, { count: 1, product: this.product! }), // trueResult
-            //         this.apiService.post<InventoryItem, Product>(`/pantry-manager/inventory`, this.product!) // falseResult
-            //       )
-            //     )
-            //   );
             this.message = `Item ${this.product.brand} added successfully`;
           } else {
             this.message = `Item ${this.barcode} was not added successfully`;
