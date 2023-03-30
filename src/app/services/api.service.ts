@@ -32,14 +32,6 @@ export class ApiService {
     );
   }
 
-  public patchPost(url: string): Observable<void> {
-    this.logging.log('logging::post url: ', url);
-
-    return this.http.post(url, {}, this.httpOptions).pipe(
-      catchError(this.patchPostErrorhandle(`POST '${url}'`))
-    );
-  }
-
   public put<T, V>(url: string, item: V): Observable<T> {
     this.logging.log('logging::put url: ', url);
     this.logging.log('logging::put item: ', item);
@@ -59,16 +51,10 @@ export class ApiService {
       // Let the app keep running by returning an empty result.
       const failedResult = of(result as T);
 
-      this.logging.log('logging::failedResult: ', failedResult);
       this.logging.log('logging::result: ', result);
+      this.logging.log('logging::failedResult: ', failedResult);
 
       return failedResult;
-    };
-  }
-
-  patchPostErrorhandle(operation = 'operation'): any {
-    return (error: any): any => {
-      this.logging.log(`logging::${operation} failed: ${error.message}`);
     };
   }
 }

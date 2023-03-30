@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { ApiService } from '../services/api.service';
 import { LoggingService } from '../services/logging.service';
 import { InventoryItem } from '../shared/models/inventory-item';
+import { PagedDataInventoryItem } from '../shared/models/paged-data';
 
 @Component({
   selector: 'app-pantry',
@@ -21,19 +22,30 @@ export class PantryComponent implements OnInit {
       pageLength: 10,
       serverSide: true,
       processing: true,
+      searching: false,
+      ordering: false,
       ajax: (_dataTablesParameters: any, callback): void => {
-        this.apiService.get<InventoryItem[]>('/pantry-manager/inventory')
-      .subscribe(resp => {
-            this.inventoryItems = resp;
+        this.logging.log('data table parameters: ', _dataTablesParameters);
 
+        this.apiService.get<PagedDataInventoryItem>('/pantry-manager/inventory')
+          .subscribe(response => {
             callback({
-              recordsTotal: resp.length,
-              recordsFiltered: resp,
-              data: []
+              recordsTotal: response.count,
+              recordsFiltered: response.count,
+              data: response.data
             });
           });
       },
-      columns: [{ data: 'count' }, { data: 'label' }, { data: 'upc' }]
+      columns: [
+        {
+          data: 'count'
+        },
+        {
+          data: 'product.label'
+        },
+        {
+          data: 'product.upc'
+        }]
     };
 
     // this.apiService.get<InventoryItem[]>('/pantry-manager/inventory')

@@ -2,7 +2,7 @@ import { AfterViewInit, Component, OnDestroy, ViewChild } from '@angular/core';
 import { QuaggaJSResultObject } from '@ericblade/quagga2';
 import { BarcodeScannerLivestreamComponent } from 'ngx-barcode-scanner';
 import { Product } from '../shared/models/product';
-import { concatMap, iif, mergeMap, Subject, tap } from 'rxjs';
+import { concatMap, iif, mergeMap, of } from 'rxjs';
 import { ApiService } from '../services/api.service';
 import { LoggingService } from '../services/logging.service';
 import { InventoryItem } from '../shared/models/inventory-item';
@@ -13,8 +13,6 @@ import { InventoryItem } from '../shared/models/inventory-item';
   styleUrls: ['./barcode-scanner.component.css']
 })
 export class BarcodeScannerComponent implements AfterViewInit, OnDestroy {
-  private readonly unsubscribe$ = new Subject<void>();
-
   private barcode: string = '';
   private detectedValues = new Map();
 
@@ -32,8 +30,7 @@ export class BarcodeScannerComponent implements AfterViewInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    this.unsubscribe$.next();
-    this.unsubscribe$.complete();
+    this.barcodeScanner?.stop();
   }
 
   ngAfterViewInit(): void {
@@ -43,18 +40,18 @@ export class BarcodeScannerComponent implements AfterViewInit, OnDestroy {
   onValueChanges(result: QuaggaJSResultObject): void {
     this.barcode = result.codeResult?.code || '';
 
-    console.debug('on value changes: ', result);
-
     if (this.detectedValues.has(this.barcode)) {
       const detectedCount = this.detectedValues.get(this.barcode) + 1;
 
       if (detectedCount > 10) {
-        const barcodeValue = this.barcode;
         // After we've detected the same value 10 times we can be certain this is the correct one.
         this.detectedValues = new Map();
         this.barcodeScanner?.stop();
 
-        this.Add();
+        this.product = undefined;
+        this.message = 'Adding item...';
+
+        this.add();
       }
       else {
         this.detectedValues.set(this.barcode, detectedCount);
@@ -70,56 +67,69 @@ export class BarcodeScannerComponent implements AfterViewInit, OnDestroy {
     }
   }
 
-  Add(): void {
+  add(): void {
     this.barcodeScanner?.stop();
 
-    this.apiService.get<Product>(`/pantry-manager/product/${this.barcode}`)
+    this.apiService.get<Product | undefined>(`/pantry-manager/product/${this.barcode}`)
       .pipe(
         concatMap(returnedProduct =>
           iif(
-            () => returnedProduct != null, // condition
-            this.apiService.get<InventoryItem>(`pantry-manager/inventory/${returnedProduct.upc}`)
-              .pipe(
-                tap((value) => console.debug('inventory item ', value)),
-                concatMap(returnedInventoryItem =>
-                  iif(
-                    () => returnedInventoryItem != null && returnedInventoryItem != undefined, // condition
-                    this.apiService.patchPost(`/pantry-manager/inventory/${returnedProduct.upc}/1`), // trueResult
-                    this.apiService.post<InventoryItem, Product>(`/pantry-manager/inventory`, returnedProduct) // falseResult
-                  )
-                )
-              ), // trueResult
+            () => this.productCheckState(returnedProduct), // condition
+            of(returnedProduct), // trueResult
             this.apiService.get<Product>(`/pantry-manager/upc-lookup/${this.barcode}`)
               .pipe(
                 mergeMap(productResult => this.apiService.post<Product, Product>(`/pantry-manager/product`, productResult))
-              )) // falseResult
+              )
+          ) // falseResult
         ),
       )
       .subscribe({
         next: (successfulItem) => {
-          console.log('subscribe next? ', successfulItem);
-          if (successfulItem && successfulItem as InventoryItem) {
-            this.product = (successfulItem as InventoryItem).product;
-
+          if (successfulItem) {
+            this.product = successfulItem;
           } else {
             this.product = undefined;
           }
         },
         complete: () => {
-          console.log('subscribe complete? ', this.product);
-
           if (this.product) {
-            this.message = `Item ${this.product.brand} added successfully`;
+
+            this.apiService.get<InventoryItem>(`pantry-manager/inventory/${this.product!.upc}`)
+              .pipe(
+                concatMap(returnedInventoryItem =>
+                  iif(
+                    () => returnedInventoryItem !== undefined, // condition
+                    this.apiService.post<InventoryItem, Product>(`/pantry-manager/inventory/${this.product!.upc}/1`, this.product!), // trueResult
+                    this.apiService.post<InventoryItem, Product>(`/pantry-manager/inventory`, this.product!) // falseResult
+                  )
+                )
+              )
+              .subscribe({
+                next: () => {
+                  this.message = `Item ${this.product!.brand} added successfully`;
+
+                  this.barcodeScanner?.start();
+                  this.barcode = '';
+                }
+              })
           } else {
             this.message = `Item ${this.barcode} was not added successfully`;
-          }
 
-          this.barcodeScanner?.start();
-          this.barcode = '';
+            this.barcodeScanner?.start();
+            this.barcode = '';
+          }
         },
         error: (error) => {
           console.error(error);
+
+          this.message = `Item ${this.barcode} was not added successfully`;
+          this.barcodeScanner?.start();
+          this.barcode = '';
         }
       });
+  }
+
+  productCheckState(product: Product | undefined): boolean {
+    return product !== undefined && product !== null;
   }
 }
