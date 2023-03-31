@@ -1,6 +1,7 @@
 # PantryManagerUi
 
 This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 14.0.0.
+This project depends on [Pantry Manager API](https://github.com/senbeiwabaka/pantry-manager-api).
 
 ## Development server
 

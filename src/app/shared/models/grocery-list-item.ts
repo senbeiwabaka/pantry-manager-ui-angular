@@ -4,5 +4,7 @@ export interface GroceryListItem {
     quantity: number,
     shopped: boolean,
     standard_quantity: number,
-    inventory_item: InventoryItem | null
+    upc: string,
+    label: string,
+    count: number
 }

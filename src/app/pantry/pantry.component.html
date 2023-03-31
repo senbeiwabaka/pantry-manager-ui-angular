@@ -1,9 +1,20 @@
 <table datatable [dtOptions]="dtOptions" class="row-border hover table">
   <thead>
     <tr>
-      <th>Count</th>
-      <th>Label</th>
+      <th>On hand</th>
+      <th>Item</th>
       <th>UPC</th>
+      <th>Add to weekly list</th>
     </tr>
   </thead>
 </table>
+
+<div class="row text-center">
+  <div class="col-md-5 col-sm-12">
+    <button class="btn btn-outline-secondary" (click)="onClickReset()" [disabled]="!HasData">Cancel</button>
+  </div>
+  <div class="col-md-2"></div>
+  <div class="col-md-5 col-sm-12 ">
+    <button class="btn btn-success" (click)="onClickUpdateStandardQuantity()" [disabled]="!HasData">Update</button>
+  </div>
+</div>
