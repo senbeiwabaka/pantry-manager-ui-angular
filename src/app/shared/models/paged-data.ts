@@ -1,6 +1,4 @@
-import { InventoryItem } from "./inventory-item";
-
-export interface PagedDataInventoryItem {
+export interface PagedData<T> {
     count: number,
-    data: InventoryItem[]
+    data: T[]
 }
