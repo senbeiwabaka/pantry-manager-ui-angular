@@ -31,8 +31,10 @@ export class GroceryListComponent implements OnInit {
       ajax: (_dataTablesParameters: any, callback): void => {
         this.logging.log('data table parameters: ', _dataTablesParameters);
 
-        this.apiService.get<PagedData<GroceryListItem>>('/pantry-manager/groceries')
+        this.apiService.get<PagedData<InventoryItem>>('/pantry-manager/groceries')
           .subscribe(response => {
+            this.HasData = response.count > 0;
+
             callback({
               recordsTotal: response.count,
               recordsFiltered: response.count,
