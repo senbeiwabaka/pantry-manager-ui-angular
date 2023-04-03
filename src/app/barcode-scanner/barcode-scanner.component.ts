@@ -6,6 +6,7 @@ import { concatMap, iif, mergeMap, of } from 'rxjs';
 import { ApiService } from '../services/api.service';
 import { LoggingService } from '../services/logging.service';
 import { InventoryItem } from '../shared/models/inventory-item';
+import { GroceryListItem } from '../shared/models/grocery-list-item';
 
 @Component({
   selector: 'app-barcode-scanner',
@@ -70,6 +71,9 @@ export class BarcodeScannerComponent implements AfterViewInit, OnDestroy {
   add(): void {
     this.barcodeScanner?.stop();
 
+    var inventoryItem: InventoryItem | undefined = undefined;
+    var groceryListItem: GroceryListItem | undefined = undefined;
+
     this.apiService.get<Product | undefined>(`/pantry-manager/product/${this.barcode}`)
       .pipe(
         concatMap(returnedProduct =>
@@ -105,13 +109,38 @@ export class BarcodeScannerComponent implements AfterViewInit, OnDestroy {
                 )
               )
               .subscribe({
-                next: () => {
-                  this.message = `Item ${this.product!.brand} added successfully`;
+                next: (returnedInventoryItem) => {
+                  inventoryItem = returnedInventoryItem;
+                },
+                complete: () => {
+                  if (inventoryItem) {
+                    this.apiService.get<GroceryListItem>(`/pantry-manager/groceries/${this.product!.upc}`)
+                      .pipe(
+                        concatMap(returnedGroceryListItem =>
+                          iif(
+                            () => returnedGroceryListItem !== undefined, // condition
+                            of(returnedGroceryListItem), // trueResult
+                            this.apiService.post<GroceryListItem, InventoryItem>(`/pantry-manager/groceries`, inventoryItem!) // falseResult
+                          ))
+                      )
+                      .subscribe({
+                        next: (returnedGroceryListItem) => {
+                          console.debug('grocery item: ', returnedGroceryListItem);
 
-                  this.barcodeScanner?.start();
-                  this.barcode = '';
+                          groceryListItem = returnedGroceryListItem;
+                        },
+                        complete: () => {
+                          if (groceryListItem) {
+                            this.message = `Item ${this.product!.brand} added successfully`;
+
+                            this.barcodeScanner?.start();
+                            this.barcode = '';
+                          }
+                        }
+                      });
+                  }
                 }
-              })
+              });
           } else {
             this.message = `Item ${this.barcode} was not added successfully`;
 

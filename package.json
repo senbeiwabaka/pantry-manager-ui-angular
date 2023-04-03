@@ -27,6 +27,7 @@
     "datatables.net": "^1.11.3",
     "datatables.net-bs5": "^1.11.3",
     "jquery": "^3.6.0",
+    "linqts": "^1.14.4",
     "ngx-barcode-scanner": "^0.3.0",
     "rxjs": "~7.5.0",
     "tslib": "^2.3.0",

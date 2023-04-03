@@ -1,5 +1,3 @@
-import { InventoryItem } from "./inventory-item";
-
 export interface GroceryListItem {
     quantity: number,
     shopped: boolean,
