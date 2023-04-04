@@ -1,0 +1,42 @@
+<h3 class="text-center">
+    Create Grocery List
+</h3>
+
+<div style="margin: 10px; border: 1px solid">
+    <table class="table">
+        <thead>
+            <tr>
+                <th scope="col" sortable="label" (sort)="sortOn($event)">
+                    Item
+                </th>
+                <th scope="col">
+                    On Hand
+                </th>
+                <th scope="col" sortable="quantity" (sort)="sortOn($event)">
+                    # to Purchase
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr *ngFor="let groceryItem of groceryItems.ToArray()">
+                <td style="width: 50%;">
+                    {{groceryItem.label}}
+                </td>
+                <td style="align-content: center;">
+                    {{groceryItem.count}}
+                </td>
+                <td>
+                    <button style="width: 20px; padding-left: 6px; padding-right: 6px;" class="btn"
+                        (click)="increaseQuantity(groceryItem.upc)">+</button>
+                    {{groceryItem.quantity}}
+                    <button style="width: 20px; padding-left: 6px; padding-right: 6px;" class="btn"
+                        (click)="decreaseQuantity(groceryItem.upc)">-</button>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+<div class="text-center">
+    <button class="btn btn-success" (click)="doGroceryShopping()">Save</button>
+</div>

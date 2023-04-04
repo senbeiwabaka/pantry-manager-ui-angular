@@ -78,13 +78,13 @@ export class BarcodeScannerComponent implements AfterViewInit, OnDestroy {
       .pipe(
         concatMap(returnedProduct =>
           iif(
-            () => this.productCheckState(returnedProduct), // condition
-            of(returnedProduct), // trueResult
+            () => this.productCheckState(returnedProduct),
+            of(returnedProduct), // product exists so return it
             this.apiService.get<Product>(`/pantry-manager/upc-lookup/${this.barcode}`)
               .pipe(
                 mergeMap(productResult => this.apiService.post<Product, Product>(`/pantry-manager/product`, productResult))
               )
-          ) // falseResult
+          ) // product didn't exist so added it
         ),
       )
       .subscribe({
@@ -102,9 +102,9 @@ export class BarcodeScannerComponent implements AfterViewInit, OnDestroy {
               .pipe(
                 concatMap(returnedInventoryItem =>
                   iif(
-                    () => returnedInventoryItem !== undefined, // condition
-                    this.apiService.post<InventoryItem, Product>(`/pantry-manager/inventory/${this.product!.upc}/1`, this.product!), // trueResult
-                    this.apiService.post<InventoryItem, Product>(`/pantry-manager/inventory`, this.product!) // falseResult
+                    () => returnedInventoryItem !== undefined,
+                    this.apiService.post<InventoryItem, Product>(`/pantry-manager/inventory/${this.product!.upc}/1`, this.product!), // inventory item existed so quantity was incremented
+                    this.apiService.post<InventoryItem, Product>(`/pantry-manager/inventory`, this.product!) // inventory item did not exist so we added with a count of 1
                   )
                 )
               )
@@ -113,14 +113,15 @@ export class BarcodeScannerComponent implements AfterViewInit, OnDestroy {
                   inventoryItem = returnedInventoryItem;
                 },
                 complete: () => {
+                  console.debug('inventory item: ', inventoryItem);
                   if (inventoryItem) {
                     this.apiService.get<GroceryListItem>(`/pantry-manager/groceries/${this.product!.upc}`)
                       .pipe(
                         concatMap(returnedGroceryListItem =>
                           iif(
-                            () => returnedGroceryListItem !== undefined, // condition
-                            of(returnedGroceryListItem), // trueResult
-                            this.apiService.post<GroceryListItem, InventoryItem>(`/pantry-manager/groceries`, inventoryItem!) // falseResult
+                            () => returnedGroceryListItem !== undefined,
+                            of(returnedGroceryListItem), // grocery list item existed
+                            this.apiService.post<GroceryListItem, InventoryItem>(`/pantry-manager/groceries`, inventoryItem!) // grocery list item did not exist so we added it
                           ))
                       )
                       .subscribe({
@@ -130,6 +131,7 @@ export class BarcodeScannerComponent implements AfterViewInit, OnDestroy {
                           groceryListItem = returnedGroceryListItem;
                         },
                         complete: () => {
+                          console.debug('grocery item: ', groceryListItem);
                           if (groceryListItem) {
                             this.message = `Item ${this.product!.brand} added successfully`;
 

@@ -6,6 +6,7 @@ import { PagedData } from '../shared/models/paged-data';
 import { AdHocInventoryItem } from './models/adhoc-inventory-item';
 import { InventoryItem } from '../shared/models/inventory-item';
 import { List } from 'linqts';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-grocery-list',
@@ -19,7 +20,7 @@ export class GroceryListComponent implements OnInit {
   public adHocInventoryItem: AdHocInventoryItem = { label: "", quantity: 1 };
   public suggestedItems: string[] = [];
 
-  constructor(private readonly apiService: ApiService, private readonly logging: LoggingService) { }
+  constructor(private readonly apiService: ApiService, private readonly logging: LoggingService, private readonly router: Router) { }
 
   ngOnInit(): void {
     this.dtOptions = {
@@ -38,10 +39,8 @@ export class GroceryListComponent implements OnInit {
         this.logging.log('data table parameters: ', _dataTablesParameters);
 
 
-        this.apiService.get<PagedData<GroceryListItem>>('/pantry-manager/groceries')
+        this.apiService.get<PagedData<GroceryListItem>>('/pantry-manager/groceries/shopping-list')
           .subscribe(response => {
-            // this.HasData = response.count > 0;
-
             callback({
               recordsTotal: response.count,
               recordsFiltered: response.count,
@@ -81,8 +80,8 @@ export class GroceryListComponent implements OnInit {
         label: this.adHocInventoryItem.label,
         upc: this.generateUUID()
       },
-      // numberUsedInPast30Days: 0,
-      // onGroceryList: false
+      number_used_in_past_30_days: 0,
+      on_grocery_list: false
     };
 
     this.suggestedItems = [];
@@ -103,6 +102,11 @@ export class GroceryListComponent implements OnInit {
     if (this.adHocInventoryItem.label) {
       this.suggestedItems = this.itemNames.Where(x => x != undefined && x.indexOf(this.adHocInventoryItem.label.toLowerCase()) > -1).ToArray();
     }
+  }
+
+  public shoppingDone(): void {
+    this.apiService.voidPost(``);
+    this.router.navigate(['/scan']);
   }
 
   // FROM: https://stackoverflow.com/questions/105034/how-to-create-a-guid-uuid

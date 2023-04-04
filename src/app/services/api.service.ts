@@ -42,6 +42,13 @@ export class ApiService {
     );
   }
 
+  public voidPost(url: string): Observable<void> {
+    this.logging.log('logging::post url: ', url);
+    return this.http.post(url, {}, this.httpOptions).pipe(
+      catchError(this.voidHandleError(`POST '${url}'`))
+    );
+  }
+
   handleError<T>(operation = 'operation', result?: T): any {
     return (error: any): Observable<T> => {
 
@@ -55,6 +62,15 @@ export class ApiService {
       this.logging.log('logging::failedResult: ', failedResult);
 
       return failedResult;
+    };
+  }
+
+  voidHandleError(operation = 'operation'): any {
+    return (error: any): Observable<void> => {
+
+      this.logging.log(`logging::${operation} failed: ${error.message}`);
+
+      return new Observable<void>(observer => observer.complete());
     };
   }
 }

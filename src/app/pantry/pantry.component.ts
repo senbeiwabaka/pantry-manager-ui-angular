@@ -1,9 +1,11 @@
 import { Component, OnInit } from '@angular/core';
 import { ApiService } from '../services/api.service';
 import { LoggingService } from '../services/logging.service';
-import { InventoryItem } from '../shared/models/inventory-item';
 import { PagedData } from '../shared/models/paged-data';
 import { GroceryListItem } from '../shared/models/grocery-list-item';
+import * as $ from 'jquery';
+import { Observable } from 'rxjs';
+import { List } from 'linqts';
 
 @Component({
   selector: 'app-pantry',
@@ -11,18 +13,26 @@ import { GroceryListItem } from '../shared/models/grocery-list-item';
   styleUrls: ['./pantry.component.css']
 })
 export class PantryComponent implements OnInit {
-
-  dtOptions: DataTables.Settings = {};
-
+  public dtOptions: DataTables.Settings = {};
   public HasData: boolean = false;
 
   constructor(private readonly apiService: ApiService, private readonly logging: LoggingService) { }
 
   public async onClickUpdateStandardQuantity(): Promise<void> {
-    // for (const item of this.pantryItems.ToArray()) {
-    //   await this.http.post(`${environment.baseServiceUrl}/pantry-manager/groceryList/standardQuantity/${item.standardQuantity}`, item.inventory).toPromise();
-    // }
+    const itemsToUpdate: List<boolean> = new List<boolean>();
+    const quantities = $('.quantity').toArray();
+    quantities.forEach(element => {
+      const value = $(element).val();
+      const upc = $(element).data('upc');
 
+      this.apiService.voidPost(`/pantry-manager/groceries/standard-quantity/${upc}/${value}`)
+        .subscribe({ next: () => { }, complete: () => { itemsToUpdate.Add(true); } });
+    });
+
+    while (itemsToUpdate.Count() !== quantities.length) {
+      await new Promise(f => setTimeout(f, 1000));
+    }
+    
     window.location.reload();
   }
 
@@ -44,9 +54,6 @@ export class PantryComponent implements OnInit {
         emptyTable: 'No items in inventory',
       },
       ajax: (_dataTablesParameters: any, callback): void => {
-        this.logging.log('data table parameters: ', _dataTablesParameters);
-
-
         this.apiService.get<PagedData<GroceryListItem>>('/pantry-manager/groceries')
           .subscribe(response => {
             this.HasData = response.count > 0;
@@ -71,8 +78,7 @@ export class PantryComponent implements OnInit {
         {
           data: null,
           render: (data) => {
-            console.debug('data: ', data);
-            return `<input type='number' id='' min='0' value='0' />`;
+            return `<input type='number' class='quantity' min='0' value='${data.standard_quantity}' data-upc='${data.upc}' />`;
           }
         }
       ]

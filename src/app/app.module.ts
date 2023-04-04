@@ -11,13 +11,17 @@ import { GroceryListComponent } from './grocery-list/grocery-list.component';
 import { HttpClientModule } from '@angular/common/http';
 import { PantryComponent } from './pantry/pantry.component';
 import { DataTablesModule } from 'angular-datatables';
+import { CreateGroceryListComponent } from './create-grocery-list/create-grocery-list.component';
+import { SortableHeaderDirective } from './shared/sortable-header.directive';
 
 @NgModule({
   declarations: [
     AppComponent,
     BarcodeScannerComponent,
     GroceryListComponent,
-    PantryComponent
+    PantryComponent,
+    CreateGroceryListComponent,
+    SortableHeaderDirective,
   ],
   imports: [
     BrowserModule,
