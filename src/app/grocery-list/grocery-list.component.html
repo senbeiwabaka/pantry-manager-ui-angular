@@ -1,4 +1,8 @@
-<table datatable [dtOptions]="dtOptions" class="row-border hover table">
+<h3 class="text-center">
+  Grocery List
+</h3>
+
+<table id="grocery-list" datatable [dtOptions]="dtOptions" class="row-border hover table">
   <thead>
     <tr>
       <th></th>
@@ -16,16 +20,20 @@
       </div>
     </div>
 
-
-    <form (ngSubmit)="onSubmit()">
+    <form [formGroup]="adHocItemForm" (ngSubmit)="onSubmit()">
       <div class="row">
         <div class="col-md-5 text-center col-sm-12">
-          <input type="text" id="label" name="label" [value]="adHocInventoryItem.label" autocomplete="off"
-            [placeholder]="'Add Item...'" (input)="onInputSearchTerm()" />
+          <input type="text" id="label" name="label" formControlName="label" autocomplete="off"
+            [placeholder]="'Add Item...'" (input)="onInputSearchTerm()" required />
+          <div *ngIf="name?.invalid && (name?.dirty || name?.touched)" class="alert alert-danger">
+            <div *ngIf="name?.errors?.['required']">
+              Name is required.
+            </div>
+          </div>
         </div>
         <div class="col-md-2 text-center col-sm-12">
-          <input style="margin-bottom: 10px;" type="number" id="quantity" name="quantity"
-            [value]="adHocInventoryItem.quantity" min="1" />
+          <input style="margin-bottom: 10px;" type="number" id="quantity" name="quantity" formControlName="quantity"
+            min="1" required />
         </div>
         <div class="col-md-5 text-center col-sm-12">
           <button style="background-color: lightgray; color:black;" type="submit" class="btn btn-success">Add</button>
@@ -40,7 +48,8 @@
     <div class="text-center">
       <button class="btn btn-success" style="margin: 10px 30px; background-color: lightgray; color: black"
         routerLink="/create-grocery-list">Edit List</button>
-      <button class="btn btn-success" style="margin: 10px 30px; background-color: #54AD32;" (click)="shoppingDone()">All Done!</button>
+      <button class="btn btn-success" style="margin: 10px 30px; background-color: #54AD32;" (click)="shoppingDone()">All
+        Done!</button>
     </div>
   </div>
 </div>

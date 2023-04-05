@@ -82,21 +82,25 @@ export class CreateGroceryListComponent implements OnInit {
     }
   }
 
-  public async doGroceryShopping() {
+  public doGroceryShopping(): void {
     const iterator = this.wantedItemsToQuantity[Symbol.iterator]();
 
     for (const item of iterator) {
-      const key: string = item[0];
+      const upc: string = item[0];
       const value: number = item[1];
-      const groceryItem: GroceryListItem = this.groceryItems.Single(x => x?.upc === key);
+      const groceryItem: GroceryListItem | undefined = this.groceryItems.SingleOrDefault(x => x?.upc === upc);
 
-      // if (value > 0) {
-      //   await this.apiService.post(`${environment.baseServiceUrl}/pantry-manager/groceryList/add/${value}`, groceryItem.inventoryItem).toPromise();
-      // }
+      if (groceryItem === undefined || (value <= 0 && groceryItem.quantity <= 0)) {
+        continue;
+      }
 
-      // if (value < 0) {
-      //   await this.http.post(`${environment.baseServiceUrl}/pantry-manager/groceryList/remove/${(value * -1)}`, groceryItem.inventoryItem).toPromise();
-      // }
+      if (value > 0) {
+        this.apiService.voidPost(`/pantry-manager/groceries/set-quantity/${groceryItem.upc}/${value}`).subscribe();
+      }
+
+      if (value < 0) {
+        this.apiService.voidPost(`/pantry-manager/groceries/set-quantity/${groceryItem.upc}/${(value * -1)}`).subscribe();
+      }
     }
 
     this.router.navigateByUrl("/grocery-list");

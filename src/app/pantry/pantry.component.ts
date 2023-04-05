@@ -4,7 +4,6 @@ import { LoggingService } from '../services/logging.service';
 import { PagedData } from '../shared/models/paged-data';
 import { GroceryListItem } from '../shared/models/grocery-list-item';
 import * as $ from 'jquery';
-import { Observable } from 'rxjs';
 import { List } from 'linqts';
 
 @Component({

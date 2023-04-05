@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { AfterViewInit, Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { ApiService } from '../services/api.service';
 import { LoggingService } from '../services/logging.service';
 import { GroceryListItem } from '../shared/models/grocery-list-item';
@@ -7,20 +7,44 @@ import { AdHocInventoryItem } from './models/adhoc-inventory-item';
 import { InventoryItem } from '../shared/models/inventory-item';
 import { List } from 'linqts';
 import { Router } from '@angular/router';
+import * as $ from 'jquery';
+import { FormControl, FormGroup } from '@angular/forms';
+import { Validators } from '@angular/forms';
+import { DataTableDirective } from 'angular-datatables';
+import { Subject } from 'rxjs';
+import { ADTSettings } from 'angular-datatables/src/models/settings';
 
 @Component({
   selector: 'app-grocery-list',
   templateUrl: './grocery-list.component.html',
   styleUrls: ['./grocery-list.component.css']
 })
-export class GroceryListComponent implements OnInit {
+export class GroceryListComponent implements AfterViewInit, OnDestroy, OnInit {
   private itemNames: List<string> = new List<string>();
 
-  public dtOptions: DataTables.Settings = {};
-  public adHocInventoryItem: AdHocInventoryItem = { label: "", quantity: 1 };
+  @ViewChild(DataTableDirective, { static: false })
+  datatableElement: DataTableDirective | null = null;
+
+  dtOptions: DataTables.Settings = {};
+
+  dtTrigger: Subject<any> = new Subject();
+
   public suggestedItems: string[] = [];
 
+  public adHocItemForm = new FormGroup({
+    label: new FormControl<string>('', [Validators.required]),
+    quantity: new FormControl<number>(1, [Validators.required, Validators.min(1)]),
+  });
+
   constructor(private readonly apiService: ApiService, private readonly logging: LoggingService, private readonly router: Router) { }
+
+  ngAfterViewInit(): void {
+    // this.drawTable();
+  }
+
+  ngOnDestroy(): void {
+    this.dtTrigger.unsubscribe();
+  }
 
   ngOnInit(): void {
     this.dtOptions = {
@@ -38,9 +62,12 @@ export class GroceryListComponent implements OnInit {
       ajax: (_dataTablesParameters: any, callback): void => {
         this.logging.log('data table parameters: ', _dataTablesParameters);
 
-
         this.apiService.get<PagedData<GroceryListItem>>('/pantry-manager/groceries/shopping-list')
           .subscribe(response => {
+            response.data.forEach(result => {
+              this.itemNames.Add(result.label.toLocaleLowerCase());
+            })
+
             callback({
               recordsTotal: response.count,
               recordsFiltered: response.count,
@@ -67,7 +94,9 @@ export class GroceryListComponent implements OnInit {
   }
 
   public onSubmit(): void {
-    if (this.adHocInventoryItem.label === '' || this.adHocInventoryItem.label === undefined || this.adHocInventoryItem.quantity <= 0) {
+    console.debug('submit hit');
+    console.debug(this.adHocItemForm.value);
+    if (this.adHocItemForm.value.label === '' || this.adHocItemForm.value.label === null || this.adHocItemForm.value.quantity === null || this.adHocItemForm.value.quantity! <= 0) {
       return;
     }
 
@@ -77,7 +106,7 @@ export class GroceryListComponent implements OnInit {
         brand: "",
         category: "",
         image_url: "",
-        label: this.adHocInventoryItem.label,
+        label: this.adHocItemForm.value.label!,
         upc: this.generateUUID()
       },
       number_used_in_past_30_days: 0,
@@ -86,21 +115,23 @@ export class GroceryListComponent implements OnInit {
 
     this.suggestedItems = [];
 
-    this.apiService.post(`/pantry-manager/groceryList/add/${this.adHocInventoryItem.quantity}`, newInventoryItem);
+    this.apiService.post<GroceryListItem, InventoryItem>(`/pantry-manager/groceries/add-adhoc/${this.adHocItemForm.value.quantity}`, newInventoryItem)
+      .subscribe();
 
     // const result = await this.http.get<GroceryItem[]>(`${environment.baseServiceUrl}/pantry-manager/groceryList/shopping`).toPromise();
 
     // this.groceryItems.Clear();
     // this.groceryItems.AddRange(result);
 
-    this.adHocInventoryItem = { label: "", quantity: 1 };
+    this.drawTable();
   }
 
   public onInputSearchTerm(): void {
+    console.debug('onInputSearchTerm');
     this.suggestedItems = [];
 
-    if (this.adHocInventoryItem.label) {
-      this.suggestedItems = this.itemNames.Where(x => x != undefined && x.indexOf(this.adHocInventoryItem.label.toLowerCase()) > -1).ToArray();
+    if (this.adHocItemForm.value.label) {
+      this.suggestedItems = this.itemNames.Where(x => x != undefined && x.indexOf(this.adHocItemForm.value.label!.toLowerCase()) > -1).ToArray();
     }
   }
 
@@ -108,6 +139,8 @@ export class GroceryListComponent implements OnInit {
     this.apiService.voidPost(``);
     this.router.navigate(['/scan']);
   }
+
+  get name() { return this.adHocItemForm.get('label'); }
 
   // FROM: https://stackoverflow.com/questions/105034/how-to-create-a-guid-uuid
   private generateUUID(): string { // Public Domain/MIT
@@ -124,5 +157,17 @@ export class GroceryListComponent implements OnInit {
       }
       return (c === 'x' ? randomNumber : (randomNumber & 0x3 | 0x8)).toString(16);
     });
+  }
+
+  drawTable() {
+    console.debug('drawTable');
+
+    if (this.datatableElement?.dtInstance) {
+      this.datatableElement.dtInstance.then((dtInstance: DataTables.Api) => {
+        dtInstance.ajax.reload();
+
+        this.dtTrigger.next(null);
+      });
+    }
   }
 }
