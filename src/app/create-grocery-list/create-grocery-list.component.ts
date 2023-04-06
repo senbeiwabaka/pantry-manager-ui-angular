@@ -106,6 +106,10 @@ export class CreateGroceryListComponent implements OnInit {
     this.router.navigateByUrl("/grocery-list");
   }
 
+  public reset(): void {
+    window.location.reload();
+  }
+
   sortOn($event: SortEvent) {
     this.headers?.forEach(header => {
       if (header.sortable !== $event.property) {

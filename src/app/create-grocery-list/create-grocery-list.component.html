@@ -42,7 +42,7 @@
         <button class="btn btn-secondary" [routerLink]="['/grocery-list']">Cancel</button>
     </div>
     <div class="col-4 text-center">
-        <button class="btn btn-primary" [routerLink]="['/create-grocery-list']">Reset</button>
+        <button class="btn btn-primary" (click)="reset()">Reset</button>
     </div>
     <div class="col-4 text-center">
         <button class="btn btn-success" (click)="doGroceryShopping()">Save</button>
