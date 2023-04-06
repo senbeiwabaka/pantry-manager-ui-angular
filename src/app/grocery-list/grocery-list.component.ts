@@ -3,16 +3,13 @@ import { ApiService } from '../services/api.service';
 import { LoggingService } from '../services/logging.service';
 import { GroceryListItem } from '../shared/models/grocery-list-item';
 import { PagedData } from '../shared/models/paged-data';
-import { AdHocInventoryItem } from './models/adhoc-inventory-item';
 import { InventoryItem } from '../shared/models/inventory-item';
 import { List } from 'linqts';
 import { Router } from '@angular/router';
-import * as $ from 'jquery';
 import { FormControl, FormGroup } from '@angular/forms';
 import { Validators } from '@angular/forms';
 import { DataTableDirective } from 'angular-datatables';
 import { Subject } from 'rxjs';
-import { ADTSettings } from 'angular-datatables/src/models/settings';
 
 @Component({
   selector: 'app-grocery-list',
@@ -62,7 +59,7 @@ export class GroceryListComponent implements AfterViewInit, OnDestroy, OnInit {
       ajax: (_dataTablesParameters: any, callback): void => {
         this.logging.log('data table parameters: ', _dataTablesParameters);
 
-        this.apiService.get<PagedData<GroceryListItem>>('/pantry-manager/groceries/shopping-list')
+        this.apiService.get<PagedData<GroceryListItem>>(`/pantry-manager/groceries/shopping-list?length=${_dataTablesParameters.length}&page=${_dataTablesParameters.start}`)
           .subscribe(response => {
             response.data.forEach(result => {
               this.itemNames.Add(result.label.toLocaleLowerCase());
@@ -93,9 +90,7 @@ export class GroceryListComponent implements AfterViewInit, OnDestroy, OnInit {
     };
   }
 
-  public onSubmit(): void {
-    console.debug('submit hit');
-    console.debug(this.adHocItemForm.value);
+  public async onSubmit(): Promise<void> {
     if (this.adHocItemForm.value.label === '' || this.adHocItemForm.value.label === null || this.adHocItemForm.value.quantity === null || this.adHocItemForm.value.quantity! <= 0) {
       return;
     }
@@ -110,20 +105,29 @@ export class GroceryListComponent implements AfterViewInit, OnDestroy, OnInit {
         upc: this.generateUUID()
       },
       number_used_in_past_30_days: 0,
-      on_grocery_list: false
+      on_grocery_list: true
     };
 
     this.suggestedItems = [];
 
+    let itemToUpdate: boolean = false;
+
     this.apiService.post<GroceryListItem, InventoryItem>(`/pantry-manager/groceries/add-adhoc/${this.adHocItemForm.value.quantity}`, newInventoryItem)
-      .subscribe();
+      .subscribe({ next: () => { }, complete: () => { itemToUpdate = true; } });
 
     // const result = await this.http.get<GroceryItem[]>(`${environment.baseServiceUrl}/pantry-manager/groceryList/shopping`).toPromise();
 
     // this.groceryItems.Clear();
     // this.groceryItems.AddRange(result);
 
+    while (!itemToUpdate) {
+      await new Promise(f => setTimeout(f, 1000));
+    }
+
     this.drawTable();
+
+    this.adHocItemForm.reset();
+    this.adHocItemForm.controls.quantity.setValue(1);
   }
 
   public onInputSearchTerm(): void {
@@ -136,7 +140,7 @@ export class GroceryListComponent implements AfterViewInit, OnDestroy, OnInit {
   }
 
   public shoppingDone(): void {
-    this.apiService.voidPost(``);
+    this.apiService.voidPost(`/pantry-manager/groceries/shopping/done`).subscribe();
     this.router.navigate(['/scan']);
   }
 
