@@ -6,5 +6,5 @@ COPY . .
 RUN npm run build
 
 FROM nginx:1.23.4
-COPY --from=node /usr/src/app/dist/pantry-ui/ /usr/share/nginx/html
+COPY --from=node /usr/src/app/dist/pantry-manager-ui/ /usr/share/nginx/html
 COPY nginx-custom.conf /etc/nginx/conf.d/default.conf
