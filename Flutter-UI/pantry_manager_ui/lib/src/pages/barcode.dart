@@ -35,8 +35,6 @@ class _BarcodeScannerState extends State<BarcodeScanner> {
   }
 
   Future<Product?> getProduct(String upc) async {
-    var upcLookupUrl = Uri.parse(
-        "http://docker-database.localdomain:8000/pantry-manager/upc-lookup/${upc}");
     var productLookupUrl = Uri.parse(
         "http://docker-database.localdomain:8000/pantry-manager/product/${upc}");
 
@@ -46,14 +44,23 @@ class _BarcodeScannerState extends State<BarcodeScanner> {
       var data = Product.fromJson(jsonDecode(response.body));
 
       return data;
-    } else if (response.statusCode == 404) {
-      response = await http.get(upcLookupUrl);
+    } else {
+      print(response.statusCode);
+    }
 
-      if (response.statusCode == 200) {
-        var data = Product.fromJson(jsonDecode(response.body));
+    return null;
+  }
 
-        return data;
-      }
+  Future<Product?> lookupProduct(String upc) async {
+    var upcLookupUrl = Uri.parse(
+        "http://docker-database.localdomain:8000/pantry-manager/upc-lookup/${upc}");
+
+    var response = await http.get(upcLookupUrl);
+
+    if (response.statusCode == 200) {
+      var data = Product.fromJson(jsonDecode(response.body));
+
+      return data;
     } else {
       print(response.statusCode);
     }
@@ -88,12 +95,28 @@ class _BarcodeScannerState extends State<BarcodeScanner> {
               Product? product;
 
               if (scannedResult is String) {
-                userMessage = scannedResult;
-                product = await getProduct(userMessage);
+                product = await getProduct(scannedResult) ??
+                    await lookupProduct(scannedResult);
+
+                if (product == null) {
+                  product = await lookupProduct(scannedResult);
+
+                  if (product != null) {
+                    // TODO: ADD NEW PRODUCT
+                  }
+                } else {
+                  if (isAdding) {
+                    // TODO: INCREMENT QUANTITY
+                  } else {
+                    // TODO: DECREMENT QUANTITY
+                  }
+                }
               }
 
               setState(() {
                 if (product != null) {
+                  userMessage = scannedResult;
+
                   print('upc is $userMessage');
                   print('product is $product');
 

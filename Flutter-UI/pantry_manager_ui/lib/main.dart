@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:pantry_manager_ui/src/pages/barcode.dart';
+import 'package:pantry_manager_ui/src/pages/pantry.dart';
 
 void main() {
   runApp(const MyApp());
@@ -68,10 +69,10 @@ class _MyHomePageState extends State<MyHomePage> {
     Widget page;
     switch (selectedIndex) {
       case 0:
-        page = BarcodeScanner();
+        page = const BarcodeScanner();
         break;
       case 1:
-        page = Placeholder();
+        page = const Pantry();
         break;
       default:
         throw UnimplementedError('no widget for $selectedIndex');
@@ -98,12 +99,12 @@ class _MyHomePageState extends State<MyHomePage> {
                 extended: false,
                 destinations: const [
                   NavigationRailDestination(
-                    icon: Icon(Icons.home),
-                    label: Text('Home'),
+                    icon: Icon(Icons.scanner),
+                    label: Text('Barcode Scanner'),
                   ),
                   NavigationRailDestination(
-                    icon: Icon(Icons.favorite),
-                    label: Text('Favorites'),
+                    icon: Icon(Icons.data_array),
+                    label: Text('Pantry'),
                   ),
                 ],
                 selectedIndex: selectedIndex,
