@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 
 import 'package:advanced_datatable/advanced_datatable_source.dart';
+import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 import 'package:pantry_manager_ui/src/models/paged_data.dart';
 
@@ -24,7 +25,19 @@ class PantrySearchDataSource extends AdvancedDataTableSource<GroceryListItem> {
         Text(currentRowData.upc.toString()),
       ),
       DataCell(
-        Text(currentRowData.standardQuantity.toString()),
+        EditableText(
+          controller: TextEditingController(
+              text: currentRowData.standardQuantity.toString()),
+          focusNode: FocusNode(),
+          style: const TextStyle(color: Colors.black),
+          cursorColor: Colors.black,
+          backgroundCursorColor: Colors.white,
+          autofocus: false,
+          keyboardType: TextInputType.number,
+          inputFormatters: <TextInputFormatter>[
+            FilteringTextInputFormatter.digitsOnly
+          ],
+        ),
       ),
     ]);
   }
