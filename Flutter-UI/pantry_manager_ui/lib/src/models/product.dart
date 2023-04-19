@@ -24,4 +24,13 @@ class Product {
       imageUrl: json['image_url'],
     );
   }
+
+  static Map<String, dynamic> toJson(Product product) {
+    return {
+      'upc': product.upc,
+      'label': product.label,
+      'brand': product.brand,
+      'image_url': product.imageUrl,
+    };
+  }
 }
