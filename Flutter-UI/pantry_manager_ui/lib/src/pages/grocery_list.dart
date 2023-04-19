@@ -10,18 +10,18 @@ class GroceryList extends StatefulWidget {
 }
 
 class _GroceryListState extends State<GroceryList> {
-  var rowsPerPage = AdvancedPaginatedDataTable.defaultRowsPerPage;
-
   final srouce = GroceriesDataSource();
+
+  var rowsPerPage = AdvancedPaginatedDataTable.defaultRowsPerPage;
 
   @override
   Widget build(BuildContext context) {
     return Column(children: [
       AdvancedPaginatedDataTable(
-        columns: [
-          const DataColumn(label: const Text('')),
-          const DataColumn(label: const Text('Label')),
-          const DataColumn(label: const Text('Quantity')),
+        columns: const [
+          DataColumn(label: Text("")),
+          DataColumn(label: Text('Label')),
+          DataColumn(label: Text('Quantity')),
         ],
         source: srouce,
         addEmptyRows: false,

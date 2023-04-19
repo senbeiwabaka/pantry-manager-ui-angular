@@ -19,11 +19,11 @@ class _PantryState extends State<Pantry> {
   Widget build(BuildContext context) {
     return Column(children: [
       AdvancedPaginatedDataTable(
-        columns: [
-          const DataColumn(label: const Text('On hand')),
-          const DataColumn(label: const Text('Item')),
-          const DataColumn(label: const Text('UPC')),
-          const DataColumn(label: const Text('Add to weekly list')),
+        columns: const [
+          DataColumn(label: Text('On hand')),
+          DataColumn(label: Text('Item')),
+          DataColumn(label: Text('UPC')),
+          DataColumn(label: Text('Add to weekly list')),
         ],
         source: srouce,
         addEmptyRows: false,
