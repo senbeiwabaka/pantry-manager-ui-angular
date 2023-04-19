@@ -23,7 +23,7 @@ class GroceriesDataSource extends AdvancedDataTableSource<GroceryListItem> {
       DataCell(
         Text(currentRowData.label.toString()),
       ),
-      DataCell(Text(currentRowData.quantity.toString())),
+      DataCell(Text(currentRowData.standardQuantity.toString())),
     ]);
   }
 

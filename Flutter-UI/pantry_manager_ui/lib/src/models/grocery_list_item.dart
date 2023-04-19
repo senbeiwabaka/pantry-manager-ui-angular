@@ -17,7 +17,7 @@ class GroceryListItem {
 
   @override
   String toString() {
-    return "upc: $upc, label: $label,";
+    return "upc: $upc, label: $label, quantity: $quantity, shopped: $shopped, standard quantity: $standardQuantity, count: $count,";
   }
 
   factory GroceryListItem.fromJson(Map<String, dynamic> json) {
