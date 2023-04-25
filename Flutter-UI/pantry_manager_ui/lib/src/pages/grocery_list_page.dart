@@ -1,7 +1,9 @@
 import 'package:advanced_datatable/datatable.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:pantry_manager_ui/src/datasources/groceries.dart';
+
+import '../datasources/groceries.dart';
+import '../views/grocery/create_grocery_list_view.dart';
 
 class GroceryListPage extends StatefulWidget {
   const GroceryListPage({super.key});
@@ -107,7 +109,12 @@ class _GroceryListPageState extends State<GroceryListPage> {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           ElevatedButton(
-            onPressed: () {},
+            onPressed: () {
+              Navigator.of(context).pop();
+              Navigator.of(context).push(MaterialPageRoute(
+                  builder: (BuildContext context) =>
+                      const CreateGroceryListView()));
+            },
             child: const Text('Edit List'),
           ),
           const SizedBox(
