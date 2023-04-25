@@ -13,7 +13,7 @@ class GroceriesDataSource extends AdvancedDataTableSource<GroceryListItem> {
   DataRow? getRow(int index) {
     final currentRowData = lastDetails!.rows[index];
 
-    return DataRow(cells: [
+    return DataRow(onSelectChanged: (value) {}, cells: [
       DataCell(
         Checkbox(
           value: false,

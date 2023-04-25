@@ -6,14 +6,14 @@ import 'package:http/http.dart' as http;
 import '../datasources/pantry_search.dart';
 import '../servics/logger.dart';
 
-class Pantry extends StatefulWidget {
-  const Pantry({super.key});
+class PantryPage extends StatefulWidget {
+  const PantryPage({super.key});
 
   @override
-  State<Pantry> createState() => _PantryState();
+  State<PantryPage> createState() => _PantryPageState();
 }
 
-class _PantryState extends State<Pantry> {
+class _PantryPageState extends State<PantryPage> {
   final log = getLogger();
   final source = PantrySearchDataSource();
 

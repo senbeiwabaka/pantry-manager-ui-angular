@@ -5,14 +5,11 @@ import 'package:flutter/material.dart';
 import 'package:advanced_datatable/advanced_datatable_source.dart';
 import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
-import 'package:pantry_manager_ui/src/models/paged_data.dart';
-import 'package:pantry_manager_ui/src/servics/logger.dart';
 
 import '../models/grocery_list_item.dart';
+import '../models/paged_data.dart';
 
 class PantrySearchDataSource extends AdvancedDataTableSource<GroceryListItem> {
-  final log = getLogger();
-
   final _items = <int, GroceryListItem>{};
 
   @override
@@ -28,28 +25,25 @@ class PantrySearchDataSource extends AdvancedDataTableSource<GroceryListItem> {
       ),
       DataCell(
         Text(currentRowData.upc.toString()),
-        showEditIcon: true,
       ),
       DataCell(
         EditableText(
           controller: TextEditingController(
               text: currentRowData.standardQuantity.toString()),
           focusNode: FocusNode(),
-          style: const TextStyle(color: Colors.black),
+          style: const TextStyle(
+              color: Colors.black, backgroundColor: Colors.grey),
           cursorColor: Colors.black,
-          backgroundCursorColor: Colors.white,
+          backgroundCursorColor: Colors.black,
           autofocus: false,
           keyboardType: TextInputType.number,
           inputFormatters: <TextInputFormatter>[
             FilteringTextInputFormatter.digitsOnly
           ],
           onChanged: (value) {
-            log.d("edit textbox onchange value: $value");
-            log.d("edit textbox onchange value: $index");
             _updateData(value, index, currentRowData);
           },
         ),
-        showEditIcon: true,
       ),
     ]);
   }
@@ -88,6 +82,7 @@ class PantrySearchDataSource extends AdvancedDataTableSource<GroceryListItem> {
     _items.clear();
 
     forceRemoteReload = true;
+
     notifyListeners();
   }
 

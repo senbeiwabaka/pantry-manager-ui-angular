@@ -9,14 +9,14 @@ import 'package:http/http.dart' as http;
 import '../models/inventory_item.dart';
 import '../models/product.dart';
 
-class BarcodeScanner extends StatefulWidget {
-  const BarcodeScanner({super.key});
+class BarcodeScannerPage extends StatefulWidget {
+  const BarcodeScannerPage({super.key});
 
   @override
-  State<BarcodeScanner> createState() => _BarcodeScannerState();
+  State<BarcodeScannerPage> createState() => _BarcodeScannerPageState();
 }
 
-class _BarcodeScannerState extends State<BarcodeScanner> {
+class _BarcodeScannerPageState extends State<BarcodeScannerPage> {
   final log = getLogger();
 
   var userMessage = "Nothing scanned";
@@ -167,7 +167,7 @@ class _BarcodeScannerState extends State<BarcodeScanner> {
 
   @override
   Widget build(BuildContext context) {
-    return Center(
+    return Material(
       child: Column(children: [
         ElevatedButton(
             onPressed: () async {
