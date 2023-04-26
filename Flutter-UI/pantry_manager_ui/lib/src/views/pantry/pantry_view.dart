@@ -11,7 +11,7 @@ class PantryView extends StatelessWidget {
   Widget build(BuildContext context) {
     return ScreenTypeLayout.builder(
       mobile: (context) => PantryViewMobile(),
-      tablet: (_) => PantryViewTablet(),
+      tablet: (_) => const PantryViewTablet(),
     );
   }
 }
