@@ -3,7 +3,6 @@ import 'package:http/http.dart' as http;
 
 import '../models/grocery_list_item.dart';
 import '../servics/groceries_service.dart';
-import '../servics/logger.dart';
 import '../views/grocery/grocery_list_view.dart';
 
 class CreateGroceryListPage extends StatefulWidget {
@@ -14,8 +13,6 @@ class CreateGroceryListPage extends StatefulWidget {
 }
 
 class _CreateGroceryListPageState extends State<CreateGroceryListPage> {
-  final log = getLogger();
-
   Future<List<GroceryListItem>> _getData = getAllInventory();
 
   List<GroceryListItem> _groceryItems = List.empty();
@@ -112,7 +109,7 @@ class _CreateGroceryListPageState extends State<CreateGroceryListPage> {
                                       builder: (BuildContext context) =>
                                           const GroceryListView()));
                                 },
-                                child: const Text("Cancel")),
+                                child: const Text("Done")),
                             ElevatedButton(
                                 onPressed: () {
                                   setState(() {
@@ -123,8 +120,6 @@ class _CreateGroceryListPageState extends State<CreateGroceryListPage> {
                             ElevatedButton(
                                 onPressed: () async {
                                   for (var item in _groceryItems) {
-                                    log.d("grocery item: $item");
-
                                     await http.post(Uri.parse(
                                         "http://docker-database.localdomain:8000/pantry-manager/groceries/set-quantity/${item.upc}/${item.quantity}"));
                                   }
