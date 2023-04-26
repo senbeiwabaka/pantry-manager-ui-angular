@@ -23,7 +23,7 @@ export class CreateGroceryListComponent implements OnInit {
   constructor(private readonly router: Router, private readonly apiService: ApiService) { }
 
   ngOnInit(): void {
-    this.apiService.get<PagedData<GroceryListItem>>('/pantry-manager/groceries')
+    this.apiService.get<PagedData<GroceryListItem>>('/pantry-manager/groceries/all')
       .subscribe(response => {
         console.debug('response: ', response);
         this.groceryItems.AddRange(response.data);

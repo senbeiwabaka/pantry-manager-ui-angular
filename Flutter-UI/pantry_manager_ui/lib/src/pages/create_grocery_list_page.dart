@@ -1,4 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+
+import '../models/grocery_list_item.dart';
+import '../servics/groceries_service.dart';
+import '../servics/logger.dart';
+import '../views/grocery/grocery_list_view.dart';
 
 class CreateGroceryListPage extends StatefulWidget {
   const CreateGroceryListPage({super.key});
@@ -8,8 +14,137 @@ class CreateGroceryListPage extends StatefulWidget {
 }
 
 class _CreateGroceryListPageState extends State<CreateGroceryListPage> {
+  final log = getLogger();
+
+  Future<List<GroceryListItem>> _getData = getAllInventory();
+
+  List<GroceryListItem> _groceryItems = List.empty();
+
   @override
   Widget build(BuildContext context) {
-    return const Placeholder();
+    return Material(
+      child: Column(
+        children: [
+          const Center(
+            child: Text("Create Grocery List"),
+          ),
+          FutureBuilder<List<GroceryListItem>>(
+              future: _getData,
+              builder: (context, snapshot) {
+                if (snapshot.hasData) {
+                  _groceryItems = snapshot.data!;
+
+                  return Container(
+                    decoration: BoxDecoration(border: Border.all()),
+                    child: Column(
+                      children: [
+                        _groceryItems.isNotEmpty
+                            ? Column(
+                                children: [
+                                  Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceEvenly,
+                                    children: const [
+                                      Text("Item"),
+                                      Text("On Hand"),
+                                      Text("# to Purchase"),
+                                    ],
+                                  ),
+                                  ListView.builder(
+                                    scrollDirection: Axis.vertical,
+                                    shrinkWrap: true,
+                                    itemCount: _groceryItems.length,
+                                    padding: const EdgeInsets.all(8),
+                                    itemBuilder: (context, index) {
+                                      return Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceEvenly,
+                                        children: [
+                                          Text(_groceryItems[index].label ??
+                                              "N/A"),
+                                          Text(_groceryItems[index]
+                                              .count
+                                              .toString()),
+                                          Row(
+                                            children: [
+                                              ElevatedButton(
+                                                  onPressed: () {
+                                                    setState(() {
+                                                      _groceryItems[index]
+                                                          .quantity++;
+                                                    });
+                                                  },
+                                                  child: const Text("+")),
+                                              Text(_groceryItems[index]
+                                                  .quantity
+                                                  .toString()),
+                                              ElevatedButton(
+                                                  onPressed: () {
+                                                    setState(() {
+                                                      _groceryItems[index]
+                                                          .quantity--;
+
+                                                      if (_groceryItems[index]
+                                                              .quantity <
+                                                          0) {
+                                                        _groceryItems[index]
+                                                            .quantity = 0;
+                                                      }
+                                                    });
+                                                  },
+                                                  child: const Text("-")),
+                                            ],
+                                          )
+                                        ],
+                                      );
+                                    },
+                                  ),
+                                ],
+                              )
+                            : const Text("No items to update for grocery list"),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: [
+                            ElevatedButton(
+                                onPressed: () {
+                                  Navigator.of(context).pop();
+                                  Navigator.of(context).push(MaterialPageRoute(
+                                      builder: (BuildContext context) =>
+                                          const GroceryListView()));
+                                },
+                                child: const Text("Cancel")),
+                            ElevatedButton(
+                                onPressed: () {
+                                  setState(() {
+                                    _getData = getAllInventory();
+                                  });
+                                },
+                                child: const Text("Reset")),
+                            ElevatedButton(
+                                onPressed: () async {
+                                  for (var item in _groceryItems) {
+                                    log.d("grocery item: $item");
+
+                                    await http.post(Uri.parse(
+                                        "http://docker-database.localdomain:8000/pantry-manager/groceries/set-quantity/${item.upc}/${item.quantity}"));
+                                  }
+
+                                  setState(() {
+                                    _getData = getAllInventory();
+                                  });
+                                },
+                                child: const Text("Save")),
+                          ],
+                        ),
+                      ],
+                    ),
+                  );
+                } else {
+                  return const Text("loading...");
+                }
+              }),
+        ],
+      ),
+    );
   }
 }

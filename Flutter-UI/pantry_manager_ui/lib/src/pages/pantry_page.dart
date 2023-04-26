@@ -4,7 +4,6 @@ import 'package:advanced_datatable/datatable.dart';
 import 'package:http/http.dart' as http;
 
 import '../datasources/pantry_search.dart';
-import '../servics/logger.dart';
 
 class PantryPage extends StatefulWidget {
   const PantryPage({super.key});
@@ -14,7 +13,6 @@ class PantryPage extends StatefulWidget {
 }
 
 class _PantryPageState extends State<PantryPage> {
-  final log = getLogger();
   final source = PantrySearchDataSource();
 
   var rowsPerPage = AdvancedPaginatedDataTable.defaultRowsPerPage;
@@ -47,28 +45,20 @@ class _PantryPageState extends State<PantryPage> {
         children: [
           ElevatedButton(
               onPressed: () {
-                log.d("Cancel button pressed");
-
                 source.reset();
               },
               child: const Text("Cancel")),
           const SizedBox(width: 10.0),
           ElevatedButton(
               onPressed: () async {
-                log.d("Update button pressed");
                 var items = source.getItemsToUpdate();
 
                 for (var item in items) {
-                  var response = await http.post(Uri.parse(
+                  await http.post(Uri.parse(
                       "http://docker-database.localdomain:8000/pantry-manager/groceries/standard-quantity/${item.upc}/${item.standardQuantity}"));
-
-                  log.d(
-                      "standard quantity set response: ${response.statusCode}");
                 }
 
                 source.reset();
-
-                log.d("items $items");
               },
               child: const Text("Update")),
         ],
