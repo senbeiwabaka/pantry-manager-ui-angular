@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:pantry_manager_ui/src/views/barcode/barcode_view.dart';
 
-void main() {
+import 'src/views/barcode/barcode_view.dart';
+
+void main() async {
   runApp(const MyApp());
 }
 
