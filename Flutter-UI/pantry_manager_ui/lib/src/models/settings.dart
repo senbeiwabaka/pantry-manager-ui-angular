@@ -1,28 +1,32 @@
 class Settings {
-  final bool isLocal;
+  bool isLocal;
+  bool isSetup;
   String? url;
 
   Settings({
     required this.isLocal,
+    required this.isSetup,
     this.url,
   });
 
   @override
   String toString() {
-    return "isLocal: $isLocal, url: $url, ";
+    return "isLocal: $isLocal, url: $url, isSetup: $isSetup,";
   }
 
   factory Settings.fromJson(Map<String, dynamic> json) {
     return Settings(
       isLocal: json['isLocal'],
+      isSetup: json['isSetup'],
       url: json['url'],
     );
   }
 
-  static Map<String, dynamic> toJson(Settings product) {
+  static Map<String, dynamic> toJson(Settings settings) {
     return {
-      'isLocal': product.isLocal,
-      'url': product.url,
+      'isLocal': settings.isLocal,
+      'isSetup': settings.isSetup,
+      'url': settings.url,
     };
   }
 }

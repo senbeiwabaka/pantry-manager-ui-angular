@@ -40,6 +40,9 @@ dependencies:
   logger: ^1.3.0
   responsive_builder: ^0.6.4
   path_provider: ^2.0.14
+  ioc_container: ^1.0.12
+  qinject: ^1.4.4
+  validators: ^3.0.0
 
 dev_dependencies:
   flutter_test:
