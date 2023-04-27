@@ -3,6 +3,7 @@ import 'package:qinject/qinject.dart';
 import 'package:validators/validators.dart';
 
 import '../models/settings.dart';
+import '../servics/file_service.dart';
 import '../views/barcode/barcode_view.dart';
 
 class SetupPage extends StatefulWidget {
@@ -75,7 +76,7 @@ class _SetupPageState extends State<SetupPage> {
         child: SizedBox(
           width: 300,
           child: TextField(
-            decoration: InputDecoration(border: OutlineInputBorder()),
+            decoration: const InputDecoration(border: OutlineInputBorder()),
             autofocus: false,
             keyboardType: TextInputType.url,
             controller: _noteController,
@@ -92,7 +93,7 @@ class _SetupPageState extends State<SetupPage> {
     childrenWidgets.add(
       ElevatedButton(
           onPressed: _isButtonEnabled()
-              ? () {
+              ? () async {
                   final qinjector = Qinject.instance();
                   final Settings settings = qinjector.use<void, Settings>();
 
@@ -103,9 +104,17 @@ class _SetupPageState extends State<SetupPage> {
                     settings.url = _url;
                   }
 
-                  Navigator.of(context).pop();
-                  Navigator.of(context).push(MaterialPageRoute(
-                      builder: (BuildContext context) => const BarcodeView()));
+                  final FileService fileService =
+                      qinjector.use<void, FileService>();
+
+                  await fileService.writeSettings(settings);
+
+                  if (context.mounted) {
+                    Navigator.of(context).pop();
+                    Navigator.of(context).push(MaterialPageRoute(
+                        builder: (BuildContext context) =>
+                            const BarcodeView()));
+                  }
                 }
               : null,
           child: const Text("Complete")),

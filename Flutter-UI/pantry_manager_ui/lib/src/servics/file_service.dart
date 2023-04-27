@@ -32,17 +32,17 @@ class FileService {
       // Read the file
       final contents = await file.readAsString();
 
-      return jsonDecode(contents);
+      return Settings.fromJson(jsonDecode(contents));
     } catch (e) {
       // If encountering an error, return 0
       return Settings(isLocal: false, isSetup: false);
     }
   }
 
-  Future<File> writeCounter(Settings settings) async {
+  Future<File> writeSettings(Settings settings) async {
     final file = await _localFile;
 
     // Write the file
-    return file.writeAsString(jsonEncode(settings));
+    return file.writeAsString(jsonEncode(Settings.toJson(settings)));
   }
 }
