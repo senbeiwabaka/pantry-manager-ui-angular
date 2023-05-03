@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:pantry_manager_ui/src/servics/logger.dart';
 import 'package:qinject/qinject.dart';
 import 'package:validators/validators.dart';
 
@@ -14,10 +15,12 @@ class SetupPage extends StatefulWidget {
 }
 
 class _SetupPageState extends State<SetupPage> {
-  var _setupLocally = false;
+  final _logger = getLogger();
+
+  bool _setupLocally = false;
   var _url = '';
 
-  late TextEditingController _noteController;
+  TextEditingController textController = TextEditingController();
 
   bool _isButtonEnabled() {
     final url = Uri.tryParse(_url);
@@ -27,24 +30,10 @@ class _SetupPageState extends State<SetupPage> {
   }
 
   @override
-  void initState() {
-    super.initState();
-    _noteController = TextEditingController.fromValue(
-      TextEditingValue(
-        text: _url,
-      ),
-    );
-  }
-
-  @override
-  void dispose() {
-    _noteController.dispose();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
     var childrenWidgets = <Widget>[];
+
+    _logger.d("_setupLocally: $_setupLocally");
 
     childrenWidgets.add(
       Row(
@@ -54,6 +43,8 @@ class _SetupPageState extends State<SetupPage> {
           Checkbox(
             value: _setupLocally,
             onChanged: (newValue) {
+              _logger.d("new value: $newValue");
+
               if (newValue != null) {
                 setState(() {
                   _setupLocally = newValue;
@@ -79,7 +70,7 @@ class _SetupPageState extends State<SetupPage> {
             decoration: const InputDecoration(border: OutlineInputBorder()),
             autofocus: false,
             keyboardType: TextInputType.url,
-            controller: _noteController,
+            controller: textController,
             onChanged: (value) {
               setState(() {
                 _url = value;
@@ -120,10 +111,12 @@ class _SetupPageState extends State<SetupPage> {
           child: const Text("Complete")),
     );
 
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: childrenWidgets,
+    return SafeArea(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: childrenWidgets,
+      ),
     );
   }
 }

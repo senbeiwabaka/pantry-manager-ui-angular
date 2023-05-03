@@ -2,12 +2,14 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:pantry_manager_ui/src/servics/logger.dart';
+import 'package:qinject/qinject.dart';
 
 import 'package:simple_barcode_scanner/simple_barcode_scanner.dart';
 import 'package:http/http.dart' as http;
 
 import '../models/inventory_item.dart';
 import '../models/product.dart';
+import '../models/settings.dart';
 
 class BarcodeScannerPage extends StatefulWidget {
   const BarcodeScannerPage({super.key});
@@ -18,14 +20,23 @@ class BarcodeScannerPage extends StatefulWidget {
 
 class _BarcodeScannerPageState extends State<BarcodeScannerPage> {
   final log = getLogger();
+  final ioc = Qinject.instance();
+
+  late Settings settings;
 
   var userMessage = "Nothing scanned";
   var imageUrl = '';
   var isAdding = true;
 
+  @override
+  void initState() {
+    super.initState();
+    settings = ioc.use<void, Settings>();
+  }
+
   Future<Product?> getProduct(String upc) async {
-    var productLookupUri = Uri.parse(
-        "http://docker-database.localdomain:8000/pantry-manager/product/$upc");
+    var productLookupUri =
+        Uri.parse("${settings.url}/pantry-manager/product/$upc");
 
     var response = await http.get(productLookupUri);
 
@@ -41,8 +52,8 @@ class _BarcodeScannerPageState extends State<BarcodeScannerPage> {
   }
 
   Future<Product?> lookupProduct(String upc) async {
-    var upcLookupUri = Uri.parse(
-        "http://docker-database.localdomain:8000/pantry-manager/upc-lookup/$upc");
+    var upcLookupUri =
+        Uri.parse("${settings.url}/pantry-manager/upc-lookup/$upc");
 
     var response = await http.get(upcLookupUri);
 
@@ -58,8 +69,7 @@ class _BarcodeScannerPageState extends State<BarcodeScannerPage> {
   }
 
   Future<bool> addProduct(Product product) async {
-    var addProductUri = Uri.parse(
-        "http://docker-database.localdomain:8000/pantry-manager/product");
+    var addProductUri = Uri.parse("${settings.url}/pantry-manager/product");
     var encodedProduct = jsonEncode(product,
         toEncodable: (Object? value) => Product.toJson(product));
 
@@ -82,8 +92,8 @@ class _BarcodeScannerPageState extends State<BarcodeScannerPage> {
   }
 
   Future<InventoryItem?> getOrAddInventoryItem(Product product) async {
-    var inventoryItemLookupUrl = Uri.parse(
-        "http://docker-database.localdomain:8000/pantry-manager/inventory/${product.upc}");
+    var inventoryItemLookupUrl =
+        Uri.parse("${settings.url}/pantry-manager/inventory/${product.upc}");
     var response = await http.get(inventoryItemLookupUrl);
 
     if (response.statusCode == 200) {
@@ -92,8 +102,8 @@ class _BarcodeScannerPageState extends State<BarcodeScannerPage> {
       return data;
     }
 
-    var inventoryItemAddUrl = Uri.parse(
-        "http://docker-database.localdomain:8000/pantry-manager/inventory");
+    var inventoryItemAddUrl =
+        Uri.parse("${settings.url}/pantry-manager/inventory");
     var encodedProduct = jsonEncode(product,
         toEncodable: (Object? value) => Product.toJson(product));
 
@@ -121,15 +131,15 @@ class _BarcodeScannerPageState extends State<BarcodeScannerPage> {
 
   Future<bool> checkOrAddGroceryItem(InventoryItem inventoryItem) async {
     var groceryItemLookupUrl = Uri.parse(
-        "http://docker-database.localdomain:8000/pantry-manager/groceries/${inventoryItem.product.upc}");
+        "${settings.url}/pantry-manager/groceries/${inventoryItem.product.upc}");
     var response = await http.get(groceryItemLookupUrl);
 
     if (response.statusCode == 200) {
       return true;
     }
 
-    var groceryItemAddUrl = Uri.parse(
-        "http://docker-database.localdomain:8000/pantry-manager/groceries");
+    var groceryItemAddUrl =
+        Uri.parse("${settings.url}/pantry-manager/groceries");
     var encoded = jsonEncode(inventoryItem,
         toEncodable: (Object? value) => InventoryItem.toJson(inventoryItem));
 
@@ -154,8 +164,8 @@ class _BarcodeScannerPageState extends State<BarcodeScannerPage> {
   }
 
   Future<bool> updateInventoryItemCount(String upc, int count) async {
-    var inventoryItemCountUrl = Uri.parse(
-        "http://docker-database.localdomain:8000/pantry-manager/inventory/$upc/$count");
+    var inventoryItemCountUrl =
+        Uri.parse("${settings.url}/pantry-manager/inventory/$upc/$count");
     var response = await http.post(inventoryItemCountUrl);
 
     if (response.statusCode == 200) {

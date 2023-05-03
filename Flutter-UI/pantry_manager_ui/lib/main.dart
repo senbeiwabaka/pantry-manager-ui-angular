@@ -7,6 +7,8 @@ import 'src/views/barcode/barcode_view.dart';
 import 'src/views/setup/setup_view.dart';
 
 void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
   Qinject.registerSingleton(() => FileService());
 
   final qinjector = Qinject.instance();
