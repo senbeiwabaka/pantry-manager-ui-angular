@@ -10,23 +10,25 @@ class GroceryListViewMobile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      key: _scaffoldKey,
-      drawer: const AppDrawer(),
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
-          Padding(
-            padding: const EdgeInsets.all(16),
-            child: IconButton(
-              icon: const Icon(Icons.menu, size: 30),
-              onPressed: () {
-                _scaffoldKey.currentState!.openDrawer();
-              },
+    return SafeArea(
+      child: Scaffold(
+        key: _scaffoldKey,
+        drawer: const AppDrawer(),
+        body: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget>[
+            Padding(
+              padding: const EdgeInsets.all(16),
+              child: IconButton(
+                icon: const Icon(Icons.menu, size: 30),
+                onPressed: () {
+                  _scaffoldKey.currentState!.openDrawer();
+                },
+              ),
             ),
-          ),
-          const GroceryListPage()
-        ],
+            const GroceryListPage()
+          ],
+        ),
       ),
     );
   }

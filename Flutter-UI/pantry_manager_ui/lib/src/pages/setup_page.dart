@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:pantry_manager_ui/src/servics/logger.dart';
+import 'package:pantry_manager_ui/src/servics/data_service.dart';
 import 'package:qinject/qinject.dart';
 import 'package:validators/validators.dart';
 
+import '../interfaces/api_service_interface.dart';
 import '../models/settings.dart';
+import '../servics/api_service.dart';
 import '../servics/file_service.dart';
+import '../servics/logger.dart';
 import '../views/barcode/barcode_view.dart';
 
 class SetupPage extends StatefulWidget {
@@ -93,6 +96,12 @@ class _SetupPageState extends State<SetupPage> {
 
                   if (_setupLocally) {
                     settings.url = _url;
+
+                    Qinject.registerSingleton<IApiService>(
+                        () => ApiService(qinjector));
+                  } else {
+                    Qinject.registerSingleton<IApiService>(
+                        () => DataService(qinjector));
                   }
 
                   final FileService fileService =

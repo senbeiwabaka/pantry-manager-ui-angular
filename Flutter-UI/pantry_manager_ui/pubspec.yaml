@@ -43,6 +43,8 @@ dependencies:
   ioc_container: ^1.0.12
   qinject: ^1.4.4
   validators: ^3.0.0
+  sqlite3: ^1.11.0
+  sqlite3_flutter_libs: ^0.5.13
 
 dev_dependencies:
   flutter_test:
