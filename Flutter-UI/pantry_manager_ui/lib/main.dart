@@ -1,25 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:qinject/qinject.dart';
-import 'package:sqlite3/sqlite3.dart';
 
 import 'src/interfaces/api_service_interface.dart';
 import 'src/models/settings.dart';
 import 'src/servics/api_service.dart';
 import 'src/servics/data_service.dart';
+import 'src/servics/database_service.dart';
 import 'src/servics/file_service.dart';
 import 'src/views/barcode/barcode_view.dart';
 import 'src/views/setup/setup_view.dart';
 
 void main() async {
-  print('Using sqlite3 ${sqlite3.version}');
-
   WidgetsFlutterBinding.ensureInitialized();
 
   Qinject.registerSingleton(() => FileService());
 
   final qinjector = Qinject.instance();
   final fileService = qinjector.use<void, FileService>();
-  final fileExists = await fileService.fileExists();
+  final fileExists = await fileService.fileExists(FileService.settingsName);
 
   Settings settings;
 
@@ -32,10 +30,13 @@ void main() async {
     Qinject.registerSingleton(() => settings);
   }
 
+  Qinject.registerSingleton(() => DatabaseService(fileService));
+
   if (settings.isLocal) {
     Qinject.registerSingleton<IApiService>(() => ApiService(qinjector));
   } else {
-    Qinject.registerSingleton<IApiService>(() => DataService(qinjector));
+    Qinject.registerSingleton<IApiService>(
+        () => DataService(qinjector.use<void, DatabaseService>()));
   }
 
   runApp(const MyApp());

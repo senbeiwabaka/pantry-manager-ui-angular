@@ -17,19 +17,12 @@ class BarcodeScannerPage extends StatefulWidget {
 
 class _BarcodeScannerPageState extends State<BarcodeScannerPage> {
   final _log = getLogger();
-  // final ioc = Qinject.instance();
   final Settings _settings = Qinject.use<void, Settings>();
   final IApiService _apiService = Qinject.use<void, IApiService>();
 
   var userMessage = "Nothing scanned";
   var imageUrl = '';
   var isAdding = true;
-
-  @override
-  void initState() {
-    super.initState();
-    // settings = ioc.use<void, Settings>();
-  }
 
   @override
   Widget build(BuildContext context) {

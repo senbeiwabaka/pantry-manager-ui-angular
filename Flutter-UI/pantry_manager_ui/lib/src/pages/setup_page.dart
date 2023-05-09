@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:pantry_manager_ui/src/servics/data_service.dart';
+import 'package:pantry_manager_ui/src/servics/database_service.dart';
 import 'package:qinject/qinject.dart';
 import 'package:validators/validators.dart';
 
@@ -90,6 +91,8 @@ class _SetupPageState extends State<SetupPage> {
               ? () async {
                   final qinjector = Qinject.instance();
                   final Settings settings = qinjector.use<void, Settings>();
+                  final DatabaseService databaseService =
+                      qinjector.use<void, DatabaseService>();
 
                   settings.isLocal = _setupLocally;
                   settings.isSetup = true;
@@ -100,8 +103,10 @@ class _SetupPageState extends State<SetupPage> {
                     Qinject.registerSingleton<IApiService>(
                         () => ApiService(qinjector));
                   } else {
+                    await databaseService.initDatabase();
+
                     Qinject.registerSingleton<IApiService>(
-                        () => DataService(qinjector));
+                        () => DataService(databaseService));
                   }
 
                   final FileService fileService =

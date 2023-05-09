@@ -7,7 +7,8 @@ import 'package:path_provider/path_provider.dart';
 import '../models/settings.dart';
 
 class FileService {
-  final String _settingsName = "settings.json";
+  static String settingsName = "settings.json";
+  static String databaseName = "pantry_manager_ui.db";
 
   Future<String> get _localPath async {
     final directory = await getApplicationDocumentsDirectory();
@@ -15,19 +16,19 @@ class FileService {
     return directory.path;
   }
 
-  Future<File> get _localFile async {
+  Future<File> localFile(String name) async {
     final path = await _localPath;
-    return File('$path/$_settingsName');
+    return File('$path/$name');
   }
 
-  Future<bool> fileExists() async {
+  Future<bool> fileExists(String name) async {
     final path = await _localPath;
-    return File('$path/$_settingsName').exists();
+    return File('$path/$name').exists();
   }
 
   Future<Settings> readSettings() async {
     try {
-      final file = await _localFile;
+      final file = await localFile(settingsName);
 
       // Read the file
       final contents = await file.readAsString();
@@ -40,7 +41,7 @@ class FileService {
   }
 
   Future<File> writeSettings(Settings settings) async {
-    final file = await _localFile;
+    final file = await localFile(settingsName);
 
     // Write the file
     return file.writeAsString(jsonEncode(Settings.toJson(settings)));

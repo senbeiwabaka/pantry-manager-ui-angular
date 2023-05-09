@@ -16,6 +16,10 @@ class Product {
     return "upc: $upc, brand: $brand, label: $label, image: $imageUrl";
   }
 
+  factory Product.fromMap(Map<String, dynamic> map) {
+    return Product.fromJson(map);
+  }
+
   factory Product.fromJson(Map<String, dynamic> json) {
     return Product(
       upc: json['upc'],
