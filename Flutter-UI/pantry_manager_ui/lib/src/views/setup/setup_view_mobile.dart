@@ -7,11 +7,11 @@ class SetupViewMobile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return const Scaffold(
       // key: _scaffoldKey,
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-        children: const <Widget>[SetupPage()],
+        children: <Widget>[SetupPage()],
       ),
     );
   }

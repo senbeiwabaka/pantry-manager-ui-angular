@@ -10,7 +10,7 @@ class SettignsView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ScreenTypeLayout.builder(
-      mobile: (context) => SetupViewMobile(),
+      mobile: (context) => const SetupViewMobile(),
       tablet: (_) => const SetupViewTablet(),
     );
   }

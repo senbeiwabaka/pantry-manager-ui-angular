@@ -1,6 +1,8 @@
 import 'package:pantry_manager_ui/src/models/product.dart';
 import 'package:sqlite3/sqlite3.dart';
 
+import '../models/grocery_list_item.dart';
+import '../models/inventory_item.dart';
 import 'file_service.dart';
 
 class DatabaseService {
@@ -62,7 +64,7 @@ class DatabaseService {
     await _createTables();
   }
 
-  Future insertData(Object data) async {
+  Future<bool> insertData(Object data) async {
     var fileName = FileService.databaseName;
     var file = await _fileService.localFile(fileName);
     var db = sqlite3.open(file.path, mode: OpenMode.readWrite);
@@ -81,12 +83,37 @@ class DatabaseService {
           ]);
     }
 
-    var result = db.select("SELECT last_insert_rowid()");
+    if (data is InventoryItem) {
+      final List<Map> productResults = db.select(
+          "SELECT id FROM public.products WHERE upc = ?", [data.product.upc]);
+
+      if (productResults.isEmpty) {
+        return false;
+      }
+
+      var productId = productResults.first["id"] as int;
+
+      db.execute('''
+      INSERT INTO public.inventory
+        (count, number_used_in_past_thirty_days, on_grocery_list, product_id)
+      VALUES 
+        (?, ?, ?, ?);''', [1, 0, false, productId]);
+    }
+
+    final List<Map> results = db.select("SELECT last_insert_rowid()");
+
+    if (results.isEmpty) {
+      return false;
+    }
+
+    var id = results.first[0] as int;
 
     db.dispose();
+
+    return id > 0;
   }
 
-  Future<T?> getData<T>(String upc) async {
+  Future<Object?> getData<T>(String upc) async {
     var fileName = FileService.databaseName;
     var file = await _fileService.localFile(fileName);
     var db = sqlite3.open(file.path, mode: OpenMode.readWrite);
@@ -94,15 +121,34 @@ class DatabaseService {
     String sql;
 
     if (T == Product) {
-      sql = "SELECT * FROM products WHERE upc = $upc";
-    } else {
+      sql = "SELECT * FROM products WHERE upc = ?";
+    } else if (T == InventoryItem) {
+      sql =
+          "SELECT I.* FROM PUBLIC.INVENTORY AS I INNER JOIN PUBLIC.PRODUCTS AS P ON I.PRODUCT_ID = P.ID WHERE P.UPC = ?";
+    } else if (T == GroceryListItem) {
       sql = "";
+    } else {
+      throw Error();
     }
 
-    var result = db.select(sql);
+    final List<Map> results = db.select(sql, [upc]);
 
-    if (result.isEmpty) {
+    if (results.isEmpty) {
       return null;
+    }
+
+    if (T == Product) {
+      final Map<String, dynamic> result = results.first as Map<String, dynamic>;
+      final Product product = Product.fromMap(result);
+
+      return product;
+    } else if (T == InventoryItem) {
+      sql =
+          "SELECT I.* FROM PUBLIC.INVENTORY AS I INNER JOIN PUBLIC.PRODUCTS AS P ON I.PRODUCT_ID = P.ID WHERE P.UPC = ?";
+    } else if (T == GroceryListItem) {
+      sql = "";
+    } else {
+      throw Error();
     }
 
     return Product(upc: upc) as T;

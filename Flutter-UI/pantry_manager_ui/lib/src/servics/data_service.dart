@@ -28,14 +28,29 @@ class DataService implements IApiService {
   }
 
   @override
-  Future<InventoryItem?> getOrAddInventoryItem(Product product) {
-    // TODO: implement getOrAddInventoryItem
-    throw UnimplementedError();
+  Future<InventoryItem?> getOrAddInventoryItem(Product product) async {
+    var inventoryItem = await _databaseService
+        .getData<InventoryItem>(product.upc) as InventoryItem?;
+
+    if (inventoryItem == null) {
+      inventoryItem = InventoryItem(
+          count: 1,
+          numberUsedInPast30Days: 0,
+          onGroceryList: false,
+          product: product);
+
+      if (await _databaseService.insertData(inventoryItem)) {
+        return inventoryItem;
+      }
+    }
+
+    return null;
   }
 
   @override
   Future<Product?> getProduct(String upc) async {
-    var product = await _databaseService.getData<Product>(upc);
+    final Product? product =
+        await _databaseService.getData<Product>(upc) as Product?;
 
     return product;
   }

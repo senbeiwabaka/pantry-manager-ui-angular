@@ -38,10 +38,10 @@ class _CreateGroceryListPageState extends State<CreateGroceryListPage> {
                         _groceryItems.isNotEmpty
                             ? Column(
                                 children: [
-                                  Row(
+                                  const Row(
                                     mainAxisAlignment:
                                         MainAxisAlignment.spaceEvenly,
-                                    children: const [
+                                    children: [
                                       Text("Item"),
                                       Text("On Hand"),
                                       Text("# to Purchase"),
