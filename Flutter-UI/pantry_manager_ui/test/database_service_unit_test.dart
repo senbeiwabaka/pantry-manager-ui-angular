@@ -1,10 +1,13 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:path_provider/path_provider.dart';
+// ignore: depend_on_referenced_packages
 import 'package:path_provider_platform_interface/path_provider_platform_interface.dart';
 import 'package:qinject/qinject.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
+import 'package:sqlite3/sqlite3.dart';
 import 'package:uuid/uuid.dart';
 
+import 'package:pantry_manager_ui/src/models/inventory_item.dart';
 import 'package:pantry_manager_ui/src/models/product.dart';
 import 'package:pantry_manager_ui/src/servics/database_service.dart';
 import 'package:pantry_manager_ui/src/servics/file_service.dart';
@@ -51,10 +54,55 @@ Future main() async {
     const expected = Product(upc: "123", label: "label", brand: "brand");
 
     await databaseService.initDatabase();
-    await databaseService.insertData(expected);
+
+    final fileService = qinjector.use<void, FileService>();
+    final file = await fileService.localFile(databseName);
+    final db = sqlite3.open(file.path, mode: OpenMode.readWrite);
+
+    db.execute(
+        "INSERT INTO products (upc, label, brand, category, image_url) VALUES(?,?,?,?,?)",
+        [expected.upc, expected.label, expected.brand, '', expected.imageUrl]);
+
+    db.dispose();
 
     // Act
     final result = await databaseService.getData<Product>("123");
+
+    // Assert
+    expect(result, isNotNull);
+    expect(result, equals(expected));
+  });
+
+  test('Database Service GetData - InventoryItem - Unit Test', () async {
+    // Arrange
+    final databaseService = DatabaseService(qinjector);
+    const product = Product(upc: "123", label: "label", brand: "brand");
+    const expected = InventoryItem(
+        count: 1,
+        numberUsedInPast30Days: 0,
+        onGroceryList: false,
+        product: product);
+
+    await databaseService.initDatabase();
+
+    final fileService = qinjector.use<void, FileService>();
+    final file = await fileService.localFile(databseName);
+    final db = sqlite3.open(file.path, mode: OpenMode.readWrite);
+
+    db.execute(
+        "INSERT INTO products (upc, label, brand, category, image_url) VALUES(?,?,?,?,?)",
+        [product.upc, product.label, product.brand, '', product.imageUrl]);
+
+    db.execute("""
+      INSERT INTO inventory
+        (count, number_used_in_past_30_days, on_grocery_list, product_id)
+      VALUES 
+        (?, ?, ?, ?);""", [1, 0, false, 1]);
+
+    db.dispose();
+
+    // Act
+    final result = await databaseService.getData<InventoryItem>("123");
 
     // Assert
     expect(result, isNotNull);
@@ -72,7 +120,49 @@ Future main() async {
     final result = await databaseService.insertData(expected);
 
     // Assert
-    final data = await databaseService.getData<Product>("123");
+    final fileService = qinjector.use<void, FileService>();
+    final file = await fileService.localFile(databseName);
+    final db = sqlite3.open(file.path, mode: OpenMode.readWrite);
+    final List<Map> records =
+        db.select("SELECT * FROM products WHERE upc = ?", [expected.upc]);
+    final Map<String, dynamic> row = records.first as Map<String, dynamic>;
+    final data = Product.fromMap(row);
+
+    db.dispose();
+
+    expect(result, isTrue);
+    expect(data, equals(expected));
+  });
+
+  test('Database Service InsertData - InventoryItem - Unit Test', () async {
+    // Arrange
+    final databaseService = DatabaseService(qinjector);
+    const product = Product(upc: "123", label: "label", brand: "brand");
+    const expected = InventoryItem(
+        count: 1,
+        numberUsedInPast30Days: 0,
+        onGroceryList: false,
+        product: product);
+
+    await databaseService.initDatabase();
+    await databaseService.insertData(product);
+
+    // Act
+    final result = await databaseService.insertData(expected);
+
+    // Assert
+    final fileService = qinjector.use<void, FileService>();
+    final file = await fileService.localFile(databseName);
+    final db = sqlite3.open(file.path, mode: OpenMode.readWrite);
+    final List<Map> records = db.select("""
+          SELECT i.*, p.*
+          FROM inventory AS i
+          INNER JOIN products AS p ON i.product_id = p.id
+          WHERE p.upc = ?""", [product.upc]);
+    final Map<String, dynamic> row = records.first as Map<String, dynamic>;
+    final data = InventoryItem.fromMap(row);
+
+    db.dispose();
 
     expect(result, isTrue);
     expect(data, equals(expected));
@@ -82,7 +172,7 @@ Future main() async {
     final directory = await getApplicationDocumentsDirectory();
     final items = directory.listSync();
 
-    for (var item in items) {
+    for (final item in items) {
       await item.delete();
     }
   });

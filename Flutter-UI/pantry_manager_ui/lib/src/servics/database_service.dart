@@ -21,15 +21,15 @@ class DatabaseService {
   Future _createDatabase() async {
     if (!await _fileService.fileExists(_databaseName)) {
       final File file = await _fileService.localFile(_databaseName);
-      var db = sqlite3.open(file.path, mode: OpenMode.readWriteCreate);
+      final db = sqlite3.open(file.path, mode: OpenMode.readWriteCreate);
 
       db.dispose();
     }
   }
 
   Future _createTables() async {
-    var file = await _fileService.localFile(_databaseName);
-    var db = sqlite3.open(file.path, mode: OpenMode.readWrite);
+    final file = await _fileService.localFile(_databaseName);
+    final db = sqlite3.open(file.path, mode: OpenMode.readWrite);
 
     const String productsTableSQL = """CREATE TABLE IF NOT EXISTS products (
             id INTEGER PRIMARY KEY,
@@ -44,7 +44,7 @@ class DatabaseService {
     const String inventoryTableSQL = """CREATE TABLE IF NOT EXISTS "inventory" (
             "id" INTEGER PRIMARY KEY,
             "count" INTEGER,
-            "number_used_in_past_thirty_days" INTEGER,
+            "number_used_in_past_30_days" INTEGER,
             "on_grocery_list" boolean,
             "product_id" INTEGER NOT NULL,
             FOREIGN KEY(product_id) REFERENCES products(id)
@@ -70,11 +70,11 @@ class DatabaseService {
   }
 
   Future<bool> insertData(Object data) async {
-    var file = await _fileService.localFile(_databaseName);
-    var db = sqlite3.open(file.path, mode: OpenMode.readWrite);
+    final file = await _fileService.localFile(_databaseName);
+    final db = sqlite3.open(file.path, mode: OpenMode.readWrite);
 
     if (data is Product) {
-      Product productData = data;
+      final Product productData = data;
 
       db.execute(
           "INSERT INTO products (upc, label, brand, category, image_url) VALUES(?,?,?,?,?)",
@@ -99,7 +99,7 @@ class DatabaseService {
 
       db.execute("""
       INSERT INTO inventory
-        (count, number_used_in_past_thirty_days, on_grocery_list, product_id)
+        (count, number_used_in_past_30_days, on_grocery_list, product_id)
       VALUES 
         (?, ?, ?, ?);""", [1, 0, false, productId]);
     }
@@ -128,10 +128,10 @@ class DatabaseService {
       // sql = "SELECT * FROM products;";
       sql = "SELECT * FROM products WHERE upc = ?";
     } else if (T == InventoryItem) {
-      sql = """SELECT I.* 
-              FROM INVENTORY AS I
-              INNER JOIN PRODUCTS AS P ON I.PRODUCT_ID = P.ID
-              WHERE P.UPC = ?""";
+      sql = """SELECT i.* , p.*
+              FROM inventory AS i
+              INNER JOIN products AS p ON i.product_id = p.id
+              WHERE p.upc = ?""";
     } else if (T == GroceryListItem) {
       sql = "";
     } else {
@@ -148,12 +148,14 @@ class DatabaseService {
 
     if (T == Product) {
       final Map<String, dynamic> result = results.first as Map<String, dynamic>;
-      final Product product = Product.fromMap(result);
+      final product = Product.fromMap(result);
 
       returnObject = product;
     } else if (T == InventoryItem) {
-      sql =
-          "SELECT I.* FROM PUBLIC.INVENTORY AS I INNER JOIN PUBLIC.PRODUCTS AS P ON I.PRODUCT_ID = P.ID WHERE P.UPC = ?";
+      final Map<String, dynamic> result = results.first as Map<String, dynamic>;
+      final inventoryItem = InventoryItem.fromMap(result);
+
+      returnObject = inventoryItem;
     } else if (T == GroceryListItem) {
       sql = "";
     } else {

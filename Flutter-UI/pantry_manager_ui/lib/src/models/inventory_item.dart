@@ -1,12 +1,14 @@
-import 'package:pantry_manager_ui/src/models/product.dart';
+import 'package:equatable/equatable.dart';
 
-class InventoryItem {
-  int count;
-  int numberUsedInPast30Days;
-  bool onGroceryList;
-  Product product;
+import 'product.dart';
 
-  InventoryItem({
+class InventoryItem extends Equatable {
+  final int count;
+  final int numberUsedInPast30Days;
+  final bool onGroceryList;
+  final Product product;
+
+  const InventoryItem({
     required this.count,
     required this.numberUsedInPast30Days,
     required this.onGroceryList,
@@ -14,16 +16,34 @@ class InventoryItem {
   });
 
   @override
-  String toString() {
-    return "count: $count, number used in past 30 days: $numberUsedInPast30Days, on grocery list: $onGroceryList, product.upc: ${product.upc}";
+  List<Object?> get props =>
+      [count, numberUsedInPast30Days, onGroceryList, product];
+
+  @override
+  bool get stringify => true;
+
+  factory InventoryItem.fromMap(Map<String, dynamic> map) {
+    return InventoryItem.fromJson(map);
   }
 
   factory InventoryItem.fromJson(Map<String, dynamic> json) {
+    var isOnGroceryList = false;
+
+    if (json['on_grocery_list'] == bool) {
+      isOnGroceryList = json['on_grocery_list'];
+    } else {
+      isOnGroceryList = json['on_grocery_list'] == 1;
+    }
+
     return InventoryItem(
       count: json['count'],
       numberUsedInPast30Days: json['number_used_in_past_30_days'],
-      onGroceryList: json['on_grocery_list'],
-      product: Product.fromJson(json['product']),
+      onGroceryList: isOnGroceryList,
+      product: Product(
+          upc: json["upc"],
+          label: json["label"],
+          brand: json["brand"],
+          imageUrl: json["image_url"]),
     );
   }
 
