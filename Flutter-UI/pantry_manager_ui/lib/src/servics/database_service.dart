@@ -1,4 +1,7 @@
+import 'dart:io';
+
 import 'package:pantry_manager_ui/src/models/product.dart';
+import 'package:qinject/qinject.dart';
 import 'package:sqlite3/sqlite3.dart';
 
 import '../models/grocery_list_item.dart';
@@ -7,14 +10,17 @@ import 'file_service.dart';
 
 class DatabaseService {
   final FileService _fileService;
+  final String _databaseName;
 
-  DatabaseService(this._fileService);
+  DatabaseService(Qinjector qinject)
+      : _fileService = qinject.use<void, FileService>(),
+        _databaseName = qinject.use<void, String>();
+
+  DatabaseService.x(this._fileService, this._databaseName);
 
   Future _createDatabase() async {
-    var fileName = FileService.databaseName;
-
-    if (!await _fileService.fileExists(fileName)) {
-      var file = await _fileService.localFile(fileName);
+    if (!await _fileService.fileExists(_databaseName)) {
+      final File file = await _fileService.localFile(_databaseName);
       var db = sqlite3.open(file.path, mode: OpenMode.readWriteCreate);
 
       db.dispose();
@@ -22,8 +28,7 @@ class DatabaseService {
   }
 
   Future _createTables() async {
-    var fileName = FileService.databaseName;
-    var file = await _fileService.localFile(fileName);
+    var file = await _fileService.localFile(_databaseName);
     var db = sqlite3.open(file.path, mode: OpenMode.readWrite);
 
     const String productsTableSQL = """CREATE TABLE IF NOT EXISTS products (
@@ -65,8 +70,7 @@ class DatabaseService {
   }
 
   Future<bool> insertData(Object data) async {
-    var fileName = FileService.databaseName;
-    var file = await _fileService.localFile(fileName);
+    var file = await _fileService.localFile(_databaseName);
     var db = sqlite3.open(file.path, mode: OpenMode.readWrite);
 
     if (data is Product) {
@@ -84,8 +88,8 @@ class DatabaseService {
     }
 
     if (data is InventoryItem) {
-      final List<Map> productResults = db.select(
-          "SELECT id FROM public.products WHERE upc = ?", [data.product.upc]);
+      final List<Map> productResults = db
+          .select("SELECT id FROM products WHERE upc = ?", [data.product.upc]);
 
       if (productResults.isEmpty) {
         return false;
@@ -93,11 +97,11 @@ class DatabaseService {
 
       var productId = productResults.first["id"] as int;
 
-      db.execute('''
-      INSERT INTO public.inventory
+      db.execute("""
+      INSERT INTO inventory
         (count, number_used_in_past_thirty_days, on_grocery_list, product_id)
       VALUES 
-        (?, ?, ?, ?);''', [1, 0, false, productId]);
+        (?, ?, ?, ?);""", [1, 0, false, productId]);
     }
 
     final List<Map> results = db.select("SELECT last_insert_rowid()");
@@ -114,17 +118,20 @@ class DatabaseService {
   }
 
   Future<Object?> getData<T>(String upc) async {
-    var fileName = FileService.databaseName;
-    var file = await _fileService.localFile(fileName);
+    var file = await _fileService.localFile(_databaseName);
     var db = sqlite3.open(file.path, mode: OpenMode.readWrite);
 
     String sql;
 
     if (T == Product) {
+      // sql = "SELECT * FROM products WHERE upc = '$upc'";
+      // sql = "SELECT * FROM products;";
       sql = "SELECT * FROM products WHERE upc = ?";
     } else if (T == InventoryItem) {
-      sql =
-          "SELECT I.* FROM PUBLIC.INVENTORY AS I INNER JOIN PUBLIC.PRODUCTS AS P ON I.PRODUCT_ID = P.ID WHERE P.UPC = ?";
+      sql = """SELECT I.* 
+              FROM INVENTORY AS I
+              INNER JOIN PRODUCTS AS P ON I.PRODUCT_ID = P.ID
+              WHERE P.UPC = ?""";
     } else if (T == GroceryListItem) {
       sql = "";
     } else {
@@ -137,11 +144,13 @@ class DatabaseService {
       return null;
     }
 
+    Object? returnObject;
+
     if (T == Product) {
       final Map<String, dynamic> result = results.first as Map<String, dynamic>;
       final Product product = Product.fromMap(result);
 
-      return product;
+      returnObject = product;
     } else if (T == InventoryItem) {
       sql =
           "SELECT I.* FROM PUBLIC.INVENTORY AS I INNER JOIN PUBLIC.PRODUCTS AS P ON I.PRODUCT_ID = P.ID WHERE P.UPC = ?";
@@ -151,7 +160,9 @@ class DatabaseService {
       throw Error();
     }
 
-    return Product(upc: upc) as T;
+    db.dispose();
+
+    return returnObject;
   }
 }
 

@@ -14,6 +14,7 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   Qinject.registerSingleton(() => FileService());
+  Qinject.registerSingleton(() => "pantry_manager_ui.db");
 
   final qinjector = Qinject.instance();
   final fileService = qinjector.use<void, FileService>();
@@ -30,7 +31,7 @@ void main() async {
     Qinject.registerSingleton(() => settings);
   }
 
-  Qinject.registerSingleton(() => DatabaseService(fileService));
+  Qinject.registerSingleton(() => DatabaseService(qinjector));
 
   if (settings.isLocal) {
     Qinject.registerSingleton<IApiService>(() => ApiService(qinjector));

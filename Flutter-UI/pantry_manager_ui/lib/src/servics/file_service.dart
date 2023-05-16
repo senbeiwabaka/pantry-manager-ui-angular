@@ -8,7 +8,6 @@ import '../models/settings.dart';
 
 class FileService {
   static String settingsName = "settings.json";
-  static String databaseName = "pantry_manager_ui.db";
 
   Future<String> get _localPath async {
     final directory = await getApplicationDocumentsDirectory();

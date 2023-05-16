@@ -45,6 +45,7 @@ dependencies:
   validators: ^3.0.0
   sqlite3: ^1.11.0
   sqlite3_flutter_libs: ^0.5.13
+  equatable: ^2.0.5
 
 dev_dependencies:
   flutter_test:
@@ -56,6 +57,10 @@ dev_dependencies:
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
   flutter_lints: ^2.0.0
+  uuid: ^3.0.7
+  plugin_platform_interface: ^2.1.4
+  mockito: ^5.4.0
+  sqflite_common_ffi: ^2.2.5
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec

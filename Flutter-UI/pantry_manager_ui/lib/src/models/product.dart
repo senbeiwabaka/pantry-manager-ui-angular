@@ -1,10 +1,12 @@
-class Product {
-  final String upc;
-  String? label;
-  String? brand;
-  String? imageUrl;
+import 'package:equatable/equatable.dart';
 
-  Product({
+class Product extends Equatable {
+  final String upc;
+  final String? label;
+  final String? brand;
+  final String? imageUrl;
+
+  const Product({
     required this.upc,
     this.label,
     this.brand,
@@ -12,9 +14,10 @@ class Product {
   });
 
   @override
-  String toString() {
-    return "upc: $upc, brand: $brand, label: $label, image: $imageUrl";
-  }
+  List<Object?> get props => [upc, label, brand, imageUrl];
+
+  @override
+  bool get stringify => true;
 
   factory Product.fromMap(Map<String, dynamic> map) {
     return Product.fromJson(map);

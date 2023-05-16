@@ -29,7 +29,7 @@ class DataService implements IApiService {
 
   @override
   Future<InventoryItem?> getOrAddInventoryItem(Product product) async {
-    var inventoryItem = await _databaseService
+    InventoryItem? inventoryItem = await _databaseService
         .getData<InventoryItem>(product.upc) as InventoryItem?;
 
     if (inventoryItem == null) {
