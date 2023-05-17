@@ -73,6 +73,31 @@ Future main() async {
     expect(result, equals(expected));
   });
 
+  test('Database Service GetData - Product (LIKE) - Unit Test', () async {
+    // Arrange
+    final databaseService = DatabaseService(qinjector);
+    const expected = Product(upc: "01230", label: "label", brand: "brand");
+
+    await databaseService.initDatabase();
+
+    final fileService = qinjector.use<void, FileService>();
+    final file = await fileService.localFile(databseName);
+    final db = sqlite3.open(file.path, mode: OpenMode.readWrite);
+
+    db.execute(
+        "INSERT INTO products (upc, label, brand, category, image_url) VALUES(?,?,?,?,?)",
+        [expected.upc, expected.label, expected.brand, '', expected.imageUrl]);
+
+    db.dispose();
+
+    // Act
+    final result = await databaseService.getData<Product>("123");
+
+    // Assert
+    expect(result, isNotNull);
+    expect(result, equals(expected));
+  });
+
   test('Database Service GetData - InventoryItem - Unit Test', () async {
     // Arrange
     final databaseService = DatabaseService(qinjector);

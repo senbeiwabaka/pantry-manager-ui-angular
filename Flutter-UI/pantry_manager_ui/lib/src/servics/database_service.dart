@@ -126,19 +126,19 @@ class DatabaseService {
     if (T == Product) {
       // sql = "SELECT * FROM products WHERE upc = '$upc'";
       // sql = "SELECT * FROM products;";
-      sql = "SELECT * FROM products WHERE upc = ?";
+      sql = "SELECT * FROM products WHERE upc LIKE ?";
     } else if (T == InventoryItem) {
       sql = """SELECT i.* , p.*
               FROM inventory AS i
               INNER JOIN products AS p ON i.product_id = p.id
-              WHERE p.upc = ?""";
+              WHERE p.upc LIKE ?""";
     } else if (T == GroceryListItem) {
       sql = "";
     } else {
       throw Error();
     }
 
-    final List<Map> results = db.select(sql, [upc]);
+    final List<Map> results = db.select(sql, ["%$upc%"]);
 
     if (results.isEmpty) {
       return null;
