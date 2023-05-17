@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
+import '../models/create_grocery_item.dart';
 import '../models/grocery_list_item.dart';
 import '../servics/groceries_service.dart';
 import '../views/grocery/grocery_list_view.dart';
@@ -15,7 +16,7 @@ class CreateGroceryListPage extends StatefulWidget {
 class _CreateGroceryListPageState extends State<CreateGroceryListPage> {
   Future<List<GroceryListItem>> _getData = getAllInventory();
 
-  List<GroceryListItem> _groceryItems = List.empty();
+  final List<CreateGroceryItem> _groceryItems = List.empty();
 
   @override
   Widget build(BuildContext context) {
@@ -29,7 +30,14 @@ class _CreateGroceryListPageState extends State<CreateGroceryListPage> {
               future: _getData,
               builder: (context, snapshot) {
                 if (snapshot.hasData) {
-                  _groceryItems = snapshot.data!;
+                  for (var item in snapshot.data!) {
+                    _groceryItems.add(CreateGroceryItem(
+                        upc: item.upc,
+                        quantity: item.quantity,
+                        shopped: item.shopped,
+                        standardQuantity: item.standardQuantity,
+                        count: item.count));
+                  }
 
                   return Container(
                     decoration: BoxDecoration(border: Border.all()),

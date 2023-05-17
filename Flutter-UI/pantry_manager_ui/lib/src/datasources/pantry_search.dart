@@ -91,7 +91,12 @@ class PantrySearchDataSource extends AdvancedDataTableSource<GroceryListItem> {
   }
 
   void _updateData(String value, int index, GroceryListItem item) {
-    item.standardQuantity = int.parse(value);
+    item = GroceryListItem(
+        upc: item.upc,
+        quantity: item.quantity,
+        shopped: item.shopped,
+        standardQuantity: int.parse(value),
+        count: item.count);
 
     if (_items.containsKey(index)) {
       _items.update(index, (value) => item);

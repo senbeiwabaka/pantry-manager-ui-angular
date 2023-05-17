@@ -35,15 +35,22 @@ class InventoryItem extends Equatable {
       isOnGroceryList = json['on_grocery_list'] == 1;
     }
 
+    Product product;
+    if (json["product"] != null) {
+      product = Product.fromJson(json["product"]);
+    } else {
+      product = Product(
+          upc: json["upc"],
+          label: json["label"],
+          brand: json["brand"],
+          imageUrl: json["image_url"]);
+    }
+
     return InventoryItem(
       count: json['count'],
       numberUsedInPast30Days: json['number_used_in_past_30_days'],
       onGroceryList: isOnGroceryList,
-      product: Product(
-          upc: json["upc"],
-          label: json["label"],
-          brand: json["brand"],
-          imageUrl: json["image_url"]),
+      product: product,
     );
   }
 

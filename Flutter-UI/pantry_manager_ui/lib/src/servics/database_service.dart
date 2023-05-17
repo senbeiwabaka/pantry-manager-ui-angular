@@ -16,8 +16,6 @@ class DatabaseService {
       : _fileService = qinject.use<void, FileService>(),
         _databaseName = qinject.use<void, String>();
 
-  DatabaseService.x(this._fileService, this._databaseName);
-
   Future _createDatabase() async {
     if (!await _fileService.fileExists(_databaseName)) {
       final File file = await _fileService.localFile(_databaseName);
@@ -95,13 +93,32 @@ class DatabaseService {
         return false;
       }
 
-      var productId = productResults.first["id"] as int;
+      final productId = productResults.first["id"] as int;
 
       db.execute("""
       INSERT INTO inventory
         (count, number_used_in_past_30_days, on_grocery_list, product_id)
       VALUES 
         (?, ?, ?, ?);""", [1, 0, false, productId]);
+    }
+
+    if (data is GroceryListItem) {
+      final List<Map> inventoryResults = db.select("""SELECT i.id 
+                    FROM inventory AS i
+                    INNER JOIN products AS p ON i.product_id = p.id 
+                    WHERE upc = ?""", [data.upc]);
+
+      if (inventoryResults.isEmpty) {
+        return false;
+      }
+
+      final inventoryItemId = inventoryResults.first["id"] as int;
+
+      db.execute("""
+      INSERT INTO groceries
+        (quantity, shopped, standard_quantity, inventory_item_id)
+      VALUES 
+        (?, ?, ?, ?);""", [0, 0, false, inventoryItemId]);
     }
 
     final List<Map> results = db.select("SELECT last_insert_rowid()");
@@ -117,15 +134,53 @@ class DatabaseService {
     return id > 0;
   }
 
+  Future<bool> updateData(Object data) async {
+    final file = await _fileService.localFile(_databaseName);
+    final db = sqlite3.open(file.path, mode: OpenMode.readWrite);
+
+    var successful = false;
+
+    if (data is InventoryItem) {
+      final List<Map> inventoryResults = db.select("""SELECT i.id 
+                    FROM inventory AS i
+                    INNER JOIN products AS p ON i.product_id = p.id 
+                    WHERE upc = ?""", [data.product.upc]);
+
+      if (inventoryResults.isEmpty) {
+        return false;
+      }
+
+      final inventoryItemId = inventoryResults.first["id"] as int;
+
+      try {
+        db.execute("""
+      UPDATE inventory
+        SET count = ?,
+          number_used_in_past_30_days = ?,
+          on_grocery_list = ?
+        WHERE id = ?;""", [
+          data.count,
+          data.numberUsedInPast30Days,
+          data.onGroceryList,
+          inventoryItemId
+        ]);
+
+        successful = true;
+      } catch (exception) {}
+    }
+
+    db.dispose();
+
+    return successful;
+  }
+
   Future<Object?> getData<T>(String upc) async {
-    var file = await _fileService.localFile(_databaseName);
-    var db = sqlite3.open(file.path, mode: OpenMode.readWrite);
+    final file = await _fileService.localFile(_databaseName);
+    final db = sqlite3.open(file.path, mode: OpenMode.readWrite);
 
     String sql;
 
     if (T == Product) {
-      // sql = "SELECT * FROM products WHERE upc = '$upc'";
-      // sql = "SELECT * FROM products;";
       sql = "SELECT * FROM products WHERE upc LIKE ?";
     } else if (T == InventoryItem) {
       sql = """SELECT i.* , p.*
@@ -133,7 +188,11 @@ class DatabaseService {
               INNER JOIN products AS p ON i.product_id = p.id
               WHERE p.upc LIKE ?""";
     } else if (T == GroceryListItem) {
-      sql = "";
+      sql = """SELECT g.*, i.*, p.*
+              FROM groceries AS g
+              INNER JOIN inventory AS i ON g.inventory_item_id = g.id
+              INNER JOIN products AS p ON i.product_id = p.id
+              WHERE p.upc LIKE ?""";
     } else {
       throw Error();
     }
@@ -146,18 +205,14 @@ class DatabaseService {
 
     Object? returnObject;
 
+    final Map<String, dynamic> result = results.first as Map<String, dynamic>;
+
     if (T == Product) {
-      final Map<String, dynamic> result = results.first as Map<String, dynamic>;
-      final product = Product.fromMap(result);
-
-      returnObject = product;
+      returnObject = Product.fromMap(result);
     } else if (T == InventoryItem) {
-      final Map<String, dynamic> result = results.first as Map<String, dynamic>;
-      final inventoryItem = InventoryItem.fromMap(result);
-
-      returnObject = inventoryItem;
+      returnObject = InventoryItem.fromMap(result);
     } else if (T == GroceryListItem) {
-      sql = "";
+      returnObject = GroceryListItem.fromJson(result);
     } else {
       throw Error();
     }
@@ -168,4 +223,4 @@ class DatabaseService {
   }
 }
 
-Type typeOf<T>() => T;
+// Type typeOf<T>() => T;
