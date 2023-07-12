@@ -18,4 +18,4 @@ steps:
       - cd ./Angular-UI/
       - npm install
       - npm run build
-      - npm run test
+      - npm run ci
