@@ -10,6 +10,10 @@ steps:
   - name: Build & Test
     image: node:18.15.0
     commands:
+      - wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add -
+      - echo "deb http://dl.google.com/linux/chrome/deb/ stable main" > /etc/apt/sources.list.d/google.list
+      - apt-get update
+      - apt-get install -y google-chrome-stable xvfb
       - cd ./Angular-UI/
       - npm install
       - npm run build
