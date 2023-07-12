@@ -6,7 +6,8 @@
     "start": "ng serve --proxy-config proxy.conf.json",
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
-    "test": "ng test"
+    "test": "ng test",
+    "ci": "ng test --karma-config karma.conf.ci.js pantry-manager-ui"
   },
   "private": true,
   "dependencies": {
