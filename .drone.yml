@@ -7,6 +7,13 @@ trigger:
     - main
 
 steps:
+  - name: Change Directory
+    image: alpine
+    commands:
+      - echo hello
+      - echo world
+      - cd .\Angular-UI\
+
   - name: Build & Test
     image: node:18.15.0
     commands:
