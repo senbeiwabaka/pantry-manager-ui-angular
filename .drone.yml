@@ -13,4 +13,4 @@ steps:
       - cd ./Angular-UI/
       - npm install
       - npm run build
-      - ng test
+      - npm run test
