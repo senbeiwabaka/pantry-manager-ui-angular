@@ -12,7 +12,8 @@ steps:
     commands:
       - echo hello
       - echo world
-      - cd .\Angular-UI\
+      - ls
+      - cd ./Angular-UI/
 
   - name: Build & Test
     image: node:18.15.0
