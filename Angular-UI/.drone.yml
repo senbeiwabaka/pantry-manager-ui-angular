@@ -1,0 +1,15 @@
+kind: pipeline
+type: docker
+name: default
+
+trigger:
+  branch:
+    - main
+
+steps:
+  - name: Build & Test
+    image: node:18.15.0
+    commands:
+      - npm install
+      - npm run build
+      - ng test
