@@ -47,7 +47,6 @@ steps:
         from_secret: username
       password:
         from_secret: password
-      debug: true
 
   - name: Build & Deploy Arm Container
     image: plugins/docker

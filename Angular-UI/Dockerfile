@@ -1,10 +1,10 @@
 FROM node:18.15.0 AS node
 WORKDIR /usr/src/app
 RUN ls
-COPY package*.json ./
+COPY ./Angular-UI/package*.json ./
 RUN ls
 RUN npm install
-COPY . .
+COPY ./Angular-UI/ .
 RUN npm run build
 
 FROM nginx:1.23.4
