@@ -10,7 +10,7 @@ RUN npm run build
 FROM nginx:1.23.4
 
 RUN apt-get update && \
-    apt-get add --no-cache openssl && \
+    apt-get add openssl && \
     openssl req -x509 -nodes -days 365 \
     -subj  "/C=CA/ST=QC/O=Pantry Manager/CN=pantry-manager.com" \
     -newkey rsa:2048 -keyout /etc/ssl/private/nginx-selfsigned.key \
