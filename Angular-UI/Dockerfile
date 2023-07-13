@@ -19,4 +19,4 @@ RUN apt-get update && \
 RUN update-ca-certificates
 
 COPY --from=node /usr/src/app/dist/pantry-manager-ui/ /usr/share/nginx/html
-COPY nginx-custom.conf /etc/nginx/conf.d/default.conf
+COPY --from=node /usr/src/app/nginx-custom.conf /etc/nginx/conf.d/default.conf
