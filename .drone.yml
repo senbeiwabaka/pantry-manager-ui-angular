@@ -16,7 +16,7 @@ steps:
       - apt-get install -y google-chrome-stable xvfb
       - npm i -g @angular/cli
       - cd ./Angular-UI/
-      - npm install
+      - npm install --ignore-scripts 
       - npm run build
       - npm run ci
 
@@ -27,3 +27,33 @@ steps:
         from_secret: sonar_host
       sonar_token:
         from_secret: sonar_token
+
+  - name: Build & Deploy Linux Container
+    image: plugins/docker
+    settings:
+      platform: linux/amd64
+      repo: gitea.mjy-home.duckdns.org/michael/pantry-manager-ui
+      tags:
+        - "latest-linux-amd64"
+        - "0.1-linux-amd64"
+      dockerfile: ./dockerfile
+      registry: gitea.mjy-home.duckdns.org
+      username:
+        from_secret: username
+      password:
+        from_secret: password
+
+  - name: Build & Deploy Arm Container
+    image: plugins/docker
+    settings:
+      platform: linux/arm64
+      repo: gitea.mjy-home.duckdns.org/michael/pantry-manager-ui
+      tags:
+        - "latest-linux-arm64"
+        - "0.1-linux-arm64"
+      dockerfile: ./dockerfile
+      registry: gitea.mjy-home.duckdns.org
+      username:
+        from_secret: username
+      password:
+        from_secret: password
