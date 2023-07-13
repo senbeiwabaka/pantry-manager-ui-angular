@@ -16,7 +16,7 @@ steps:
       - apt-get install -y google-chrome-stable xvfb
       - npm i -g @angular/cli
       - cd ./Angular-UI/
-      - npm install --ignore-scripts 
+      - npm install --ignore-scripts
       - npm run build
       - npm run ci
 
@@ -28,10 +28,14 @@ steps:
       sonar_token:
         from_secret: sonar_token
 
-  - name: Build & Deploy Linux Container
-    image: plugins/docker
+  - name: CD
+    image: alpine:latest
     commands:
       - cd ./Angular-UI/
+
+  - name: Build & Deploy Linux Container
+    image: plugins/docker
+    depends_on: [CD]
     settings:
       platform: linux/amd64
       repo: gitea.mjy-home.duckdns.org/michael/pantry-manager-ui
