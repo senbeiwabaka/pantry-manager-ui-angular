@@ -1,6 +1,8 @@
 FROM node:18.15.0 AS node
 WORKDIR /usr/src/app
+RUN ls
 COPY package*.json ./
+RUN ls
 RUN npm install
 COPY . .
 RUN npm run build
