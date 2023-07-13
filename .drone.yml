@@ -35,7 +35,6 @@ steps:
 
   - name: Build & Deploy Linux Container
     image: plugins/docker
-    depends_on: [CD]
     settings:
       platform: linux/amd64
       repo: gitea.mjy-home.duckdns.org/michael/pantry-manager-ui
