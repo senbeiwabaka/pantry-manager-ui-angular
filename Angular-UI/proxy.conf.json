@@ -1,6 +1,6 @@
 {
     "/pantry-manager/*": {
-        "target": "http://docker-database.localdomain:8000",
+        "target": "http://infrastructure-pi.localdomain:8000",
         "secure": false,
         "logLevel": "debug",
         "changeOrigin": true

@@ -15,7 +15,7 @@ export class PantryComponent implements OnInit {
   public dtOptions: DataTables.Settings = {};
   public HasData: boolean = false;
 
-  constructor(private readonly apiService: ApiService, private readonly logging: LoggingService) { }
+  constructor(private readonly apiService: ApiService) { }
 
   public async onClickUpdateStandardQuantity(): Promise<void> {
     const itemsToUpdate: List<boolean> = new List<boolean>();

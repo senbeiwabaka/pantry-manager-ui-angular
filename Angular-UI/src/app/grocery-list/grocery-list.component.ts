@@ -6,10 +6,10 @@ import { PagedData } from '../shared/models/paged-data';
 import { InventoryItem } from '../shared/models/inventory-item';
 import { List } from 'linqts';
 import { Router } from '@angular/router';
-import { FormControl, FormGroup } from '@angular/forms';
-import { Validators } from '@angular/forms';
+import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { DataTableDirective } from 'angular-datatables';
 import { Subject } from 'rxjs';
+import { LoggingType } from '../shared/models/logging-type';
 
 @Component({
   selector: 'app-grocery-list',
@@ -33,7 +33,10 @@ export class GroceryListComponent implements AfterViewInit, OnDestroy, OnInit {
     quantity: new FormControl<number>(1, [Validators.required, Validators.min(1)]),
   });
 
-  constructor(private readonly apiService: ApiService, private readonly logging: LoggingService, private readonly router: Router) { }
+  constructor(
+    private readonly apiService: ApiService,
+    private readonly logging: LoggingService,
+    private readonly router: Router) { }
 
   ngAfterViewInit(): void {
     // this.drawTable();
@@ -57,7 +60,7 @@ export class GroceryListComponent implements AfterViewInit, OnDestroy, OnInit {
         emptyTable: 'No items in inventory',
       },
       ajax: (_dataTablesParameters: any, callback): void => {
-        this.logging.log('data table parameters: ', _dataTablesParameters);
+        this.logging.log('data table parameters: ', LoggingType.Debug, _dataTablesParameters);
 
         this.apiService.get<PagedData<GroceryListItem>>(`/pantry-manager/groceries/shopping-list?length=${_dataTablesParameters.length}&page=${_dataTablesParameters.start}`)
           .subscribe(response => {
@@ -131,7 +134,8 @@ export class GroceryListComponent implements AfterViewInit, OnDestroy, OnInit {
   }
 
   public onInputSearchTerm(): void {
-    console.debug('onInputSearchTerm');
+    this.logging.log('onInputSearchTerm: ');
+
     this.suggestedItems = [];
 
     if (this.adHocItemForm.value.label) {
@@ -163,8 +167,8 @@ export class GroceryListComponent implements AfterViewInit, OnDestroy, OnInit {
     });
   }
 
-  drawTable() {
-    console.debug('drawTable');
+  private drawTable(): void {
+    this.logging.log('drawTable: ');
 
     if (this.datatableElement?.dtInstance) {
       this.datatableElement.dtInstance.then((dtInstance: DataTables.Api) => {

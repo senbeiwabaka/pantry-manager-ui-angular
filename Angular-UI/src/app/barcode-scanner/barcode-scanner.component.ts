@@ -7,6 +7,7 @@ import { ApiService } from '../services/api.service';
 import { LoggingService } from '../services/logging.service';
 import { InventoryItem } from '../shared/models/inventory-item';
 import { GroceryListItem } from '../shared/models/grocery-list-item';
+import { LoggingType } from '../shared/models/logging-type';
 
 @Component({
   selector: 'app-barcode-scanner',
@@ -122,7 +123,7 @@ export class BarcodeScannerComponent implements AfterViewInit, OnDestroy {
           }
         },
         error: (error) => {
-          console.error(error);
+          this.logging.log(error.message, LoggingType.Error);
 
           this.message = `Item ${this.barcode} was not added successfully`;
           this.imageUrl = '';
