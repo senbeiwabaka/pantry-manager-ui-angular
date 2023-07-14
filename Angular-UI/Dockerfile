@@ -9,6 +9,8 @@ RUN npm run build
 
 FROM nginx:1.23.4
 
+ENV API_PORT=80
+
 RUN apt-get update && \
     apt-get install openssl && \
     openssl req -x509 -nodes -days 365 \
