@@ -1,15 +1,17 @@
-server {
-  listen 443;
-  proxy_set_header Host       $http_host;
-  proxy_set_header X-Real-IP  $remote_addr;
-  client_max_body_size 0;
-  chunked_transfer_encoding on;
-  location / {
-    root /usr/share/nginx/html;
-    index index.html index.htm;
-    try_files $uri $uri/ /index.html;
-  }
-  location /pantry-manager {
-    proxy_pass http://$API_HOST:$API_PORT;
+http{
+  server {
+    listen 443;
+    proxy_set_header Host       $http_host;
+    proxy_set_header X-Real-IP  $remote_addr;
+    client_max_body_size 0;
+    chunked_transfer_encoding on;
+    location / {
+      root /usr/share/nginx/html;
+      index index.html index.htm;
+      try_files $uri $uri/ /index.html;
+    }
+    location /pantry-manager {
+      proxy_pass http://$API_HOST:$API_PORT;
+    }
   }
 }
