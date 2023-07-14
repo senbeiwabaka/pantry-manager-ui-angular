@@ -21,4 +21,6 @@ RUN apt-get update && \
 RUN update-ca-certificates
 
 COPY --from=node /usr/src/app/dist/pantry-manager-ui/ /usr/share/nginx/html
-COPY --from=node /usr/src/app/nginx-custom.conf /etc/nginx/conf.d/default.conf
+COPY --from=node /usr/src/app/nginx.conf.template /nginx.conf.template
+
+CMD ["/bin/sh" , "-c" , "envsubst '$API_HOST $API_PORT' < /nginx.conf.template > /etc/nginx/nginx.conf && exec nginx -g 'daemon off;'"]
