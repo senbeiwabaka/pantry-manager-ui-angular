@@ -7,46 +7,41 @@ trigger:
     - main
 
 steps:
-  - name: Build & Test
-    image: node:18.15.0
-    commands:
-      - wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add -
-      - echo "deb http://dl.google.com/linux/chrome/deb/ stable main" > /etc/apt/sources.list.d/google.list
-      - apt-get update
-      - apt-get install -y google-chrome-stable xvfb
-      - npm i -g @angular/cli
-      - cd ./Angular-UI/
-      - npm install --ignore-scripts
-      - npm run build
-      - npm run ci
+  # - name: Build & Test
+  #   image: node:18.15.0
+  #   commands:
+  #     - wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add -
+  #     - echo "deb http://dl.google.com/linux/chrome/deb/ stable main" > /etc/apt/sources.list.d/google.list
+  #     - apt-get update
+  #     - apt-get install -y google-chrome-stable xvfb
+  #     - npm i -g @angular/cli
+  #     - cd ./Angular-UI/
+  #     - npm install --ignore-scripts
+  #     - npm run build
+  #     - npm run ci
 
-  - name: code-analysis
-    image: aosapps/drone-sonar-plugin
-    settings:
-      sonar_host:
-        from_secret: sonar_host
-      sonar_token:
-        from_secret: sonar_token
+  # - name: code-analysis
+  #   image: aosapps/drone-sonar-plugin
+  #   settings:
+  #     sonar_host:
+  #       from_secret: sonar_host
+  #     sonar_token:
+  #       from_secret: sonar_token
 
-  - name: CD
-    image: alpine:latest
-    commands:
-      - cd ./Angular-UI/
-
-  - name: Build & Deploy Linux Container
-    image: plugins/docker
-    settings:
-      platform: linux/amd64
-      repo: gitea.mjy-home.duckdns.org/michael/pantry-manager-ui
-      tags:
-        - "latest-linux-amd64"
-        - "0.1-linux-amd64"
-      dockerfile: ./Angular-UI/Dockerfile
-      registry: gitea.mjy-home.duckdns.org
-      username:
-        from_secret: username
-      password:
-        from_secret: password
+  # - name: Build & Deploy Linux Container
+  #   image: plugins/docker
+  #   settings:
+  #     platform: linux/amd64
+  #     repo: gitea.mjy-home.duckdns.org/michael/pantry-manager-ui
+  #     tags:
+  #       - "latest-linux-amd64"
+  #       - "0.1-linux-amd64"
+  #     dockerfile: ./Angular-UI/Dockerfile
+  #     registry: gitea.mjy-home.duckdns.org
+  #     username:
+  #       from_secret: username
+  #     password:
+  #       from_secret: password
 
   - name: Build & Deploy Arm Container
     image: plugins/docker
