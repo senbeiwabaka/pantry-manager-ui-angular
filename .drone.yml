@@ -46,7 +46,7 @@ steps:
   - name: Build & Deploy Arm Container
     image: plugins/docker
     settings:
-      platform: linux/arm64
+      platform: linux/arm64/v8
       repo: gitea.mjy-home.duckdns.org/michael/pantry-manager-ui
       privileged: true
       tags:
