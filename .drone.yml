@@ -48,6 +48,7 @@ steps:
     settings:
       platform: linux/arm64
       repo: gitea.mjy-home.duckdns.org/michael/pantry-manager-ui
+      privileged: true
       tags:
         - "latest-linux-arm64"
         - "0.1-linux-arm64"
