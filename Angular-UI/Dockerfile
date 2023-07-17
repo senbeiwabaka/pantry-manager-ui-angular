@@ -1,8 +1,6 @@
 FROM node:18.15.0 AS node
 WORKDIR /usr/src/app
-RUN ls
 COPY ./Angular-UI/package*.json ./
-RUN ls
 RUN npm install
 COPY ./Angular-UI/ .
 RUN npm run build
