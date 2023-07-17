@@ -1,0 +1,24 @@
+FROM node@sha256:880efa151def06bfd656c5c72deae2c418b914940c1c8a52786d226c9be34812 AS node
+WORKDIR /usr/src/app
+COPY ./Angular-UI/package*.json ./
+RUN npm install
+COPY ./Angular-UI/ .
+RUN npm run build
+
+FROM nginx@sha256:7e8505ff16110d55bc01f29d603c3662f629502327fc495278a9bcef37c75426
+
+ENV API_PORT=80
+
+RUN apt-get update && \
+    apt-get install openssl && \
+    openssl req -x509 -nodes -days 365 \
+    -subj  "/C=CA/ST=QC/O=Pantry Manager/CN=pantry-manager.com" \
+    -newkey rsa:2048 -keyout /etc/ssl/private/nginx-selfsigned.key \
+    -out /etc/ssl/certs/nginx-selfsigned.crt;
+
+RUN update-ca-certificates
+
+COPY --from=node /usr/src/app/dist/pantry-manager-ui/ /usr/share/nginx/html
+COPY --from=node /usr/src/app/nginx.conf.template /nginx.conf.template
+
+CMD ["/bin/sh" , "-c" , "envsubst '$API_HOST $API_PORT' < /nginx.conf.template > /etc/nginx/nginx.conf && exec nginx -g 'daemon off;'"]
