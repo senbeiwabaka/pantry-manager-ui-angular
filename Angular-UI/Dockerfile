@@ -6,6 +6,7 @@ COPY ./Angular-UI/ .
 RUN npm run build
 
 FROM nginx:1.23.4
+EXPOSE 443
 
 ENV API_PORT=80
 
