@@ -10,12 +10,16 @@ http{
     proxy_pass_header Content-Type;
     client_max_body_size 0;
     chunked_transfer_encoding on;
+
+    root /usr/share/nginx/html;
+
+    location ~* \.(?:css|js|map|jpe?g|gif|png)$ { }
+
     location / {
-      proxy_pass_header Content-Type;
-      root /usr/share/nginx/html;
-      index index.html index.htm;
+      #index index.html index.htm;
       try_files $uri $uri/ /index.html;
     }
+
     location /pantry-manager {
       proxy_pass http://$API_HOST:$API_PORT;
     }
