@@ -50,6 +50,9 @@ name: arm
 platform:
   arch: arm64
 
+depends_on:
+- amd64
+
 steps:
   - name: Build & Deploy Arm Container
     image: plugins/docker
