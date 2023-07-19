@@ -14,10 +14,9 @@ steps:
       - apt-get update
       - apt-get install -y google-chrome-stable xvfb
       - npm i -g @angular/cli
-      - cd ./Angular-UI/
       - npm install --ignore-scripts
       - npm run build
-      - npm run ci
+      - npm run ci-test
 
   - name: code-analysis
     image: aosapps/drone-sonar-plugin
@@ -31,11 +30,11 @@ steps:
     image: plugins/docker
     settings:
       platform: linux/amd64
-      repo: gitea.mjy-home.duckdns.org/michael/pantry-manager-ui
+      repo: gitea.mjy-home.duckdns.org/michael/pantry-manager-ui-angular
       tags:
         - "latest-linux-amd64"
         - "0.1-linux-amd64"
-      dockerfile: ./Angular-UI/Dockerfile
+      dockerfile: ./Dockerfile
       registry: gitea.mjy-home.duckdns.org
       username:
         from_secret: username
@@ -58,12 +57,12 @@ steps:
     image: plugins/docker
     settings:
       platform: linux/arm64
-      repo: gitea.mjy-home.duckdns.org/michael/pantry-manager-ui
+      repo: gitea.mjy-home.duckdns.org/michael/pantry-manager-ui-angular
       privileged: true
       tags:
         - "latest-linux-arm64"
         - "0.1-linux-arm64"
-      dockerfile: ./Angular-UI/Dockerfile-ARM
+      dockerfile: ./Dockerfile-ARM
       registry: gitea.mjy-home.duckdns.org
       username:
         from_secret: username

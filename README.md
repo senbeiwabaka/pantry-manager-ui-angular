@@ -1,9 +1,32 @@
-# UIs for pantry manager
+# PantryManagerUi
 
-## [Angular UI](./Angular-UI/README.md)
+This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 14.0.0.
+This project depends on [Pantry Manager API](https://github.com/senbeiwabaka/pantry-manager-api).
 
-## [Flutter UI](./Flutter-UI/readme.md)
+## Development server
 
-[![Build Status](https://drone.mjy-home.duckdns.org/api/badges/michael/pantry-manager-ui/status.svg)](https://drone.mjy-home.duckdns.org/michael/pantry-manager-ui)
+Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The application will automatically reload if you change any of the source files.
 
-[![Quality Gate Status](http://infrastructure-pi.localdomain:9000/api/project_badges/measure?project=michael%3Apantry-manager-ui&metric=alert_status&token=sqb_d502b9664f0509e8a6abcbba67e4eef77cb454bf)](http://infrastructure-pi.localdomain:9000/dashboard?id=michael%3Apantry-manager-ui)
+## Code scaffolding
+
+Run `ng generate component component-name` to generate a new component. You can also use `ng generate directive|pipe|service|class|guard|interface|enum|module`.
+
+## Build
+
+Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory.
+
+## Running unit tests
+
+Run `ng test` to execute the unit tests via [Karma](https://karma-runner.github.io).
+
+## Running end-to-end tests
+
+Run `ng e2e` to execute the end-to-end tests via a platform of your choice. To use this command, you need to first add a package that implements end-to-end testing capabilities.
+
+## Further help
+
+To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI Overview and Command Reference](https://angular.io/cli) page.
+
+## Docker 
+sudo docker build . -t pantry-manager-ui
+sudo docker run --name pantry-manager-ui -d -p 8001:80 --restart=always pantry-manager-ui
