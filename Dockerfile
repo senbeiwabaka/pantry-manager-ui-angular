@@ -1,8 +1,8 @@
 FROM node:18.15.0 AS node
 WORKDIR /usr/src/app
-COPY ./Angular-UI/package*.json ./
+COPY ./package*.json ./
 RUN npm install
-COPY ./Angular-UI/ .
+COPY ./ .
 RUN npm run build
 
 FROM nginx:1.23.4
